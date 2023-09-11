@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="zh-CN" color-mode="light">
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="keywords" content="Java,架构,微服务,DDD,Linux,MySQL,kali,渗透,靶场" />
+  <meta name="author" content="" />
+  <meta name="description" content="" />
+  <meta name="google-site-verification" content="upepwGnfWNUwayjKgibRLbZjDZIBCrA6p82D4PXtV4Q" />
+  
+  
+  <title>
+    
+      zookeeper集成seata 
+      
+      
+      |
+    
+     Miracle-
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+    <link rel="icon" href="/images/favicon.png">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  
+<link rel="stylesheet" href="/css/color-scheme.css">
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/iconfont/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+<link rel="stylesheet" href="/css/comments.css">
+
+
+  <!-- jquery3.3.1 -->
+  <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+  <!-- fancybox -->
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <script async src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js"></script>
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+  <script>
+    var html = document.documentElement
+    const colorMode = localStorage.getItem('color-mode')
+    if (colorMode) {
+      document.documentElement.setAttribute('color-mode', colorMode)
+    }
+  </script>
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img no-lazy src="/images/avatar.png" alt="">
+      
+    </a>
+    <div class="nickname"><a href="/">Miracle-</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">主页</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">文章</a>
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          <a href="/tags/">标签</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">关于</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+<!-- LaTex Display -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+</script>
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']]
+  }
+};
+</script>
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">zookeeper集成seata</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime" title="更新时间"></i>
+          2022-01-02 10:27:13
+        </span>
+        
+              <span class="post-tags">
+                <i class="iconfont icon-tags" title="标签"></i>
+                
+                <span class="span--tag">
+                  <a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/" title="微服务">
+                    <b>#</b> 微服务
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/zookeeper/" title="zookeeper">
+                    <b>#</b> zookeeper
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/" title="分布式事务">
+                    <b>#</b> 分布式事务
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/seata/" title="seata">
+                    <b>#</b> seata
+                  </a>
+                </span>
+                
+              </span>
+          
+      </div>
+      <div class="markdown-body">
+        <blockquote>
+<p>因为不喜欢nacos，太大很臃肿很多功能没必要，所以使用注册中心和配置中心均为zookeeper，然后基于zookeeper搭建了一个后端微服务脚手架。犯蠢忘了不同服务用的是不同数据库，但是自己测试的时候偷懒只用了一个数据库，导致分布式事务始终不生效，后来拆分数据库，测试正常。zookeeper推荐使用ZK UI导入配置文件。另在Seata 1.4.2版本中数据库中时间字段不能使用datetime类型否则会引起序列化错误。</p>
+</blockquote>
+<h4 id="1-引入依赖"><a href="#1-引入依赖" class="headerlink" title="1. 引入依赖"></a>1. 引入依赖</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">&lt;!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-zookeeper-config --&gt;</span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;spring-cloud-starter-zookeeper-config&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;3.1.0&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br><span class="line"></span><br><span class="line">&lt;!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-zookeeper-discovery --&gt;</span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;spring-cloud-starter-zookeeper-discovery&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;3.1.0&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br><span class="line"></span><br><span class="line">&lt;!-- seata连接zk 默认连接器，不剔除就狂报错 --&gt;</span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;com.101tec&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;zkclient&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;0.11&lt;/version&gt;</span><br><span class="line">    &lt;exclusions&gt;</span><br><span class="line">        &lt;exclusion&gt;</span><br><span class="line">            &lt;groupId&gt;org.apache.zookeeper&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;zookeeper&lt;/artifactId&gt;</span><br><span class="line">        &lt;/exclusion&gt;</span><br><span class="line">    &lt;/exclusions&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br><span class="line"></span><br><span class="line">&lt;!-- seata --&gt;</span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;io.seata&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;seata-spring-boot-starter&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;1.4.2&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+<h4 id="2-编写consumer和provider的yml"><a href="#2-编写consumer和provider的yml" class="headerlink" title="2. 编写consumer和provider的yml"></a>2. 编写consumer和provider的yml</h4><h5 id="消费者"><a href="#消费者" class="headerlink" title="消费者"></a>消费者</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">spring:</span><br><span class="line">  application:</span><br><span class="line">    name: consumer</span><br><span class="line">  profiles:</span><br><span class="line">    active: dev # 不指定这个参数在使用zookeeper作为配置中心会报错</span><br><span class="line">  cloud:</span><br><span class="line">    zookeeper:</span><br><span class="line">      enabled: true  # true:开启zookeeper外部化配置, false:读取本地配置; 需要将config.watcher.enabled同时设置</span><br><span class="line">      connect-string: 127.0.0.1:2181</span><br><span class="line">      discovery:</span><br><span class="line">        register: true</span><br><span class="line">        enabled: true</span><br><span class="line">        root: /cloud-service</span><br><span class="line">      config:</span><br><span class="line">        enabled: true</span><br><span class="line">        root: /cloud-config</span><br><span class="line">        watcher:</span><br><span class="line">          enabled: true</span><br></pre></td></tr></table></figure>
+
+<h5 id="提供者"><a href="#提供者" class="headerlink" title="提供者"></a>提供者</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">spring:</span><br><span class="line">  application:</span><br><span class="line">    name: provider</span><br><span class="line">  profiles:</span><br><span class="line">    active: dev</span><br><span class="line">  cloud:</span><br><span class="line">    zookeeper:</span><br><span class="line">      enabled: true  # true:开启zookeeper外部化配置, false:读取本地配置; 需要将config.watcher.enabled同时设置</span><br><span class="line">      connect-string: 127.0.0.1:2181</span><br><span class="line">      discovery:</span><br><span class="line">        register: true</span><br><span class="line">        enabled: true</span><br><span class="line">        root: /cloud-service</span><br><span class="line">      config:</span><br><span class="line">        enabled: true</span><br><span class="line">        root: /cloud-config</span><br><span class="line">        watcher:</span><br><span class="line">          enabled: true</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-服务消费者和提供者启动类"><a href="#3-服务消费者和提供者启动类" class="headerlink" title="3. 服务消费者和提供者启动类"></a>3. 服务消费者和提供者启动类</h4><p>启动类上面都新增@EnableDiscoveryClient注解</p>
+<h4 id="4-将seata配置文件导入zookeeper配置中心"><a href="#4-将seata配置文件导入zookeeper配置中心" class="headerlink" title="4. 将seata配置文件导入zookeeper配置中心"></a>4. 将seata配置文件导入zookeeper配置中心</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line">/seata=client.log.exceptionRate=100</span><br><span class="line">/seata=client.report.retry.count=5</span><br><span class="line">/seata=client.rm.asyncCommitBufferLimit=10000</span><br><span class="line">/seata=client.rm.lockRetryInternal=10</span><br><span class="line">/seata=client.rm.lockRetryPolicyBranchRollbackOnConflict=true</span><br><span class="line">/seata=client.rm.lockRetryTimes=30</span><br><span class="line">/seata=client.rm.reportRetryCount=5</span><br><span class="line">/seata=client.rm.reportSuccessEnable=false</span><br><span class="line">/seata=client.rm.sqlParserType=druid</span><br><span class="line">/seata=client.rm.tableMetaCheckEnable=false</span><br><span class="line">/seata=client.tm.commitRetryCount=5</span><br><span class="line">/seata=client.tm.rollbackRetryCount=5</span><br><span class="line">/seata=client.undo.dataValidation=true</span><br><span class="line">/seata=client.undo.logSerialization=jackson</span><br><span class="line">/seata=client.undo.logTable=undo_log</span><br><span class="line">/seata=metrics.enabled=false</span><br><span class="line">/seata=metrics.exporterList=prometheus</span><br><span class="line">/seata=metrics.exporterPrometheusPort=9898</span><br><span class="line">/seata=metrics.registryType=compact</span><br><span class="line">/seata=server.maxCommitRetryTimeout=-1</span><br><span class="line">/seata=server.maxRollbackRetryTimeout=-1</span><br><span class="line">/seata=server.recovery.asynCommittingRetryPeriod=1000</span><br><span class="line">/seata=server.recovery.committingRetryPeriod=1000</span><br><span class="line">/seata=server.recovery.rollbackingRetryPeriod=1000</span><br><span class="line">/seata=server.recovery.timeoutRetryPeriod=1000</span><br><span class="line">/seata=server.rollbackRetryTimeoutUnlockEnable=false</span><br><span class="line">/seata=server.undo.logDeletePeriod=86400000</span><br><span class="line">/seata=server.undo.logSaveDays=7</span><br><span class="line">/seata=service.default.grouplist=127.0.0.1:8091</span><br><span class="line">/seata=service.disableGlobalTransaction=false</span><br><span class="line">/seata=service.enableDegrade=false</span><br><span class="line">/seata=service.vgroupMapping.provider-service-group=default</span><br><span class="line">/seata=service.vgroupMapping.consumer-service-group=default</span><br><span class="line">/seata=store.db.branchTable=branch_table</span><br><span class="line">/seata=store.db.datasource=dbcp</span><br><span class="line">/seata=store.db.dbType=mysql</span><br><span class="line">/seata=store.db.driverClassName=com.mysql.cj.jdbc.Driver</span><br><span class="line">/seata=store.db.globalTable=global_table</span><br><span class="line">/seata=store.db.lockTable=lock_table</span><br><span class="line">/seata=store.db.maxConn=3</span><br><span class="line">/seata=store.db.minConn=1</span><br><span class="line">/seata=store.db.password=123456</span><br><span class="line">/seata=store.db.queryLimit=100</span><br><span class="line">/seata=store.db.url=jdbc:mysql://127.0.0.1:3306/cloud?useUnicode=true</span><br><span class="line">/seata=store.db.user=root</span><br><span class="line">/seata=store.file.dir=file_store/data</span><br><span class="line">/seata=store.file.fileWriteBufferCacheSize=16384</span><br><span class="line">/seata=store.file.flushDiskMode=async</span><br><span class="line">/seata=store.file.maxBranchSessionSize=16384</span><br><span class="line">/seata=store.file.maxGlobalSessionSize=512</span><br><span class="line">/seata=store.file.sessionReloadReadSize=100</span><br><span class="line">/seata=store.mode=db</span><br><span class="line">/seata=transport.compressor=none</span><br><span class="line">/seata=transport.enableClientBatchSendRequest=false</span><br><span class="line">/seata=transport.heartbeat=true</span><br><span class="line">/seata=transport.serialization=seata</span><br><span class="line">/seata=transport.server=NIO</span><br><span class="line">/seata=transport.shutdown.wait=3</span><br><span class="line">/seata=transport.threadFactory.bossThreadPrefix=NettyBoss</span><br><span class="line">/seata=transport.threadFactory.bossThreadSize=1</span><br><span class="line">/seata=transport.threadFactory.clientSelectorThreadPrefix=NettyClientSelector</span><br><span class="line">/seata=transport.threadFactory.clientSelectorThreadSize=1</span><br><span class="line">/seata=transport.threadFactory.clientWorkerThreadPrefix=NettyClientWorkerThread</span><br><span class="line">/seata=transport.threadFactory.serverExecutorThreadPrefix=NettyServerBizHandler</span><br><span class="line">/seata=transport.threadFactory.shareBossWorker=false</span><br><span class="line">/seata=transport.threadFactory.workerThreadPrefix=NettyServerNIOWorker</span><br><span class="line">/seata=transport.threadFactory.workerThreadSize=default</span><br><span class="line">/seata=transport.type=TCP</span><br></pre></td></tr></table></figure>
+<p>每新加一个服务就要导入一个新的配置，xxx可以自定义</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/seata=service.vgroupMapping.xxx=default</span><br></pre></td></tr></table></figure>
+
+<h4 id="5-新增seata的yml配置到provider和consumer"><a href="#5-新增seata的yml配置到provider和consumer" class="headerlink" title="5. 新增seata的yml配置到provider和consumer"></a>5. 新增seata的yml配置到provider和consumer</h4><h5 id="provider-yml"><a href="#provider-yml" class="headerlink" title="provider yml"></a>provider yml</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line">seata:</span><br><span class="line">  enabled: true</span><br><span class="line">  application-id: provider-seata</span><br><span class="line">  tx-service-group: provider-service-group # 事务群组（可以每个应用独立取名，也可以使用相同的名字）这个群组名一定要和上面的seata=service.vgroupMapping中的xxx相等</span><br><span class="line">  client:</span><br><span class="line">    rm-report-success-enable: true</span><br><span class="line">    rm-table-meta-check-enable: false # 自动刷新缓存中的表结构（默认false）</span><br><span class="line">    rm-report-retry-count: 5 # 一阶段结果上报TC重试次数（默认5）</span><br><span class="line">    rm-async-commit-buffer-limit: 10000 # 异步提交缓存队列长度（默认10000）</span><br><span class="line">    rm:</span><br><span class="line">      lock:</span><br><span class="line">        lock-retry-internal: 10 # 校验或占用全局锁重试间隔（默认10ms）</span><br><span class="line">        lock-retry-times: 30 # 校验或占用全局锁重试次数（默认30）</span><br><span class="line">        lock-retry-policy-branch-rollback-on-conflict: true # 分支事务与其它全局回滚事务冲突时锁策略（优先释放本地锁让回滚成功）</span><br><span class="line">    tm-commit-retry-count: 3 # 一阶段全局提交结果上报TC重试次数（默认1次，建议大于1）</span><br><span class="line">    tm-rollback-retry-count: 3 # 一阶段全局回滚结果上报TC重试次数（默认1次，建议大于1）</span><br><span class="line">    undo:</span><br><span class="line">      undo-data-validation: true # 二阶段回滚镜像校验（默认true开启）</span><br><span class="line">      undo-log-serialization: jackson # undo序列化方式（默认jackson）</span><br><span class="line">      undo-log-table: undo_log  # 自定义undo表名（默认undo_log）</span><br><span class="line">    support:</span><br><span class="line">      spring:</span><br><span class="line">        datasource-autoproxy: true</span><br><span class="line">  service:</span><br><span class="line">    vgroup-mapping:</span><br><span class="line">      my_test_tx_group: default # TC 集群（必须与seata-server保持一致）</span><br><span class="line">    enable-degrade: false # 降级开关</span><br><span class="line">    disable-global-transaction: false # 禁用全局事务（默认false）</span><br><span class="line">    grouplist:</span><br><span class="line">      default: 127.0.0.1:8091</span><br><span class="line">  transport:</span><br><span class="line">    shutdown:</span><br><span class="line">      wait: 3</span><br><span class="line">    thread-factory:</span><br><span class="line">      boss-thread-prefix: NettyBoss</span><br><span class="line">      worker-thread-prefix: NettyServerNIOWorker</span><br><span class="line">      server-executor-thread-prefix: NettyServerBizHandler</span><br><span class="line">      share-boss-worker: false</span><br><span class="line">      client-selector-thread-prefix: NettyClientSelector</span><br><span class="line">      client-selector-thread-size: 1</span><br><span class="line">      client-worker-thread-prefix: NettyClientWorkerThread</span><br><span class="line">    type: TCP</span><br><span class="line">    server: NIO</span><br><span class="line">    heartbeat: true</span><br><span class="line">    serialization: seata</span><br><span class="line">    compressor: none</span><br><span class="line">    enable-client-batch-send-request: true # 客户端事务消息请求是否批量合并发送（默认true）</span><br><span class="line">  registry:</span><br><span class="line">    file:</span><br><span class="line">      name: file.conf</span><br><span class="line">    type: zk</span><br><span class="line">    zk:</span><br><span class="line">      server-addr: 127.0.0.1:2181</span><br><span class="line">  config:</span><br><span class="line">    file:</span><br><span class="line">      name: file.conf</span><br><span class="line">    type: zk</span><br><span class="line">    zk:</span><br><span class="line">      server-addr: 127.0.0.1:2181</span><br></pre></td></tr></table></figure>
+<h5 id="consumer-yml"><a href="#consumer-yml" class="headerlink" title="consumer yml"></a>consumer yml</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line">seata:</span><br><span class="line">  enabled: true</span><br><span class="line">  application-id: consumer-seata</span><br><span class="line">  tx-service-group: consumer-service-group # 事务群组（可以每个应用独立取名，也可以使用相同的名字）这个群组名一定要和上面的seata=service.vgroupMapping中的xxx相等</span><br><span class="line">  client:</span><br><span class="line">    rm-report-success-enable: true</span><br><span class="line">    rm-table-meta-check-enable: false # 自动刷新缓存中的表结构（默认false）</span><br><span class="line">    rm-report-retry-count: 5 # 一阶段结果上报TC重试次数（默认5）</span><br><span class="line">    rm-async-commit-buffer-limit: 10000 # 异步提交缓存队列长度（默认10000）</span><br><span class="line">    rm:</span><br><span class="line">      lock:</span><br><span class="line">        lock-retry-internal: 10 # 校验或占用全局锁重试间隔（默认10ms）</span><br><span class="line">        lock-retry-times: 30 # 校验或占用全局锁重试次数（默认30）</span><br><span class="line">        lock-retry-policy-branch-rollback-on-conflict: true # 分支事务与其它全局回滚事务冲突时锁策略（优先释放本地锁让回滚成功）</span><br><span class="line">    tm-commit-retry-count: 3 # 一阶段全局提交结果上报TC重试次数（默认1次，建议大于1）</span><br><span class="line">    tm-rollback-retry-count: 3 # 一阶段全局回滚结果上报TC重试次数（默认1次，建议大于1）</span><br><span class="line">    undo:</span><br><span class="line">      undo-data-validation: true # 二阶段回滚镜像校验（默认true开启）</span><br><span class="line">      undo-log-serialization: jackson # undo序列化方式（默认jackson）</span><br><span class="line">      undo-log-table: undo_log  # 自定义undo表名（默认undo_log）</span><br><span class="line">    support:</span><br><span class="line">      spring:</span><br><span class="line">        datasource-autoproxy: true</span><br><span class="line">  service:</span><br><span class="line">    vgroup-mapping:</span><br><span class="line">      my_test_tx_group: default # TC 集群（必须与seata-server保持一致）</span><br><span class="line">    enable-degrade: false # 降级开关</span><br><span class="line">    disable-global-transaction: false # 禁用全局事务（默认false）</span><br><span class="line">    grouplist:</span><br><span class="line">      default: 127.0.0.1:8091</span><br><span class="line">  transport:</span><br><span class="line">    shutdown:</span><br><span class="line">      wait: 3</span><br><span class="line">    thread-factory:</span><br><span class="line">      boss-thread-prefix: NettyBoss</span><br><span class="line">      worker-thread-prefix: NettyServerNIOWorker</span><br><span class="line">      server-executor-thread-prefix: NettyServerBizHandler</span><br><span class="line">      share-boss-worker: false</span><br><span class="line">      client-selector-thread-prefix: NettyClientSelector</span><br><span class="line">      client-selector-thread-size: 1</span><br><span class="line">      client-worker-thread-prefix: NettyClientWorkerThread</span><br><span class="line">    type: TCP</span><br><span class="line">    server: NIO</span><br><span class="line">    heartbeat: true</span><br><span class="line">    serialization: seata</span><br><span class="line">    compressor: none</span><br><span class="line">    enable-client-batch-send-request: true # 客户端事务消息请求是否批量合并发送（默认true）</span><br><span class="line">  registry:</span><br><span class="line">    file:</span><br><span class="line">      name: file.conf</span><br><span class="line">    type: zk</span><br><span class="line">    zk:</span><br><span class="line">      server-addr: 127.0.0.1:2181</span><br><span class="line">  config:</span><br><span class="line">    file:</span><br><span class="line">      name: file.conf</span><br><span class="line">    type: zk</span><br><span class="line">    zk:</span><br><span class="line">      server-addr: 127.0.0.1:2181</span><br></pre></td></tr></table></figure>
+<h4 id="6-下载seata并修改配置文件"><a href="#6-下载seata并修改配置文件" class="headerlink" title="6. 下载seata并修改配置文件"></a>6. 下载seata并修改配置文件</h4><h5 id="修改file-conf"><a href="#修改file-conf" class="headerlink" title="修改file.conf"></a>修改file.conf</h5><p><img src="https://s4.ax1x.com/2022/01/07/7peqN4.png" alt="按照图中标识修改配置文件中的参数"></p>
+<h5 id="修改registry-conf"><a href="#修改registry-conf" class="headerlink" title="修改registry.conf"></a>修改registry.conf</h5><p><img src="https://s4.ax1x.com/2022/01/07/7pebEF.png" alt="按照图中标识修改配置文件中的参数"></p>
+<h4 id="7-各个子服务的数据库导入seata的sql"><a href="#7-各个子服务的数据库导入seata的sql" class="headerlink" title="7. 各个子服务的数据库导入seata的sql"></a>7. 各个子服务的数据库导入seata的sql</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br></pre></td><td class="code"><pre><span class="line">/*</span><br><span class="line"> Navicat Premium Data Transfer</span><br><span class="line"></span><br><span class="line"> Source Server Type    : MySQL</span><br><span class="line"> Source Server Version : 80025</span><br><span class="line"></span><br><span class="line"> Target Server Type    : MySQL</span><br><span class="line"> Target Server Version : 80025</span><br><span class="line"> File Encoding         : 65001</span><br><span class="line"></span><br><span class="line"> Date: 02/01/2022 10:57:18</span><br><span class="line">*/</span><br><span class="line"></span><br><span class="line">SET NAMES utf8mb4;</span><br><span class="line">SET FOREIGN_KEY_CHECKS = 0;</span><br><span class="line"></span><br><span class="line">-- ----------------------------</span><br><span class="line">-- Table structure for branch_table</span><br><span class="line">-- ----------------------------</span><br><span class="line">DROP TABLE IF EXISTS `branch_table`;</span><br><span class="line">CREATE TABLE `branch_table`  (</span><br><span class="line">  `branch_id` bigint NOT NULL,</span><br><span class="line">  `xid` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,</span><br><span class="line">  `transaction_id` bigint NULL DEFAULT NULL,</span><br><span class="line">  `resource_group_id` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,</span><br><span class="line">  `resource_id` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,</span><br><span class="line">  `lock_key` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,</span><br><span class="line">  `branch_type` varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,</span><br><span class="line">  `status` tinyint NULL DEFAULT NULL,</span><br><span class="line">  `client_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,</span><br><span class="line">  `application_data` varchar(2000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,</span><br><span class="line">  `gmt_create` datetime NULL DEFAULT NULL,</span><br><span class="line">  `gmt_modified` datetime NULL DEFAULT NULL,</span><br><span class="line">  PRIMARY KEY (`branch_id`) USING BTREE,</span><br><span class="line">  INDEX `idx_xid`(`xid`) USING BTREE</span><br><span class="line">) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;</span><br><span class="line"></span><br><span class="line">-- ----------------------------</span><br><span class="line">-- Table structure for global_table</span><br><span class="line">-- ----------------------------</span><br><span class="line">DROP TABLE IF EXISTS `global_table`;</span><br><span class="line">CREATE TABLE `global_table`  (</span><br><span class="line">  `xid` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,</span><br><span class="line">  `transaction_id` bigint NULL DEFAULT NULL,</span><br><span class="line">  `status` tinyint NOT NULL,</span><br><span class="line">  `application_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,</span><br><span class="line">  `transaction_service_group` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,</span><br><span class="line">  `transaction_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,</span><br><span class="line">  `timeout` int NULL DEFAULT NULL,</span><br><span class="line">  `begin_time` bigint NULL DEFAULT NULL,</span><br><span class="line">  `application_data` varchar(2000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,</span><br><span class="line">  `gmt_create` datetime NULL DEFAULT NULL,</span><br><span class="line">  `gmt_modified` datetime NULL DEFAULT NULL,</span><br><span class="line">  PRIMARY KEY (`xid`) USING BTREE,</span><br><span class="line">  INDEX `idx_gmt_modified_status`(`gmt_modified`, `status`) USING BTREE,</span><br><span class="line">  INDEX `idx_transaction_id`(`transaction_id`) USING BTREE</span><br><span class="line">) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;</span><br><span class="line"></span><br><span class="line">-- ----------------------------</span><br><span class="line">-- Table structure for lock_table</span><br><span class="line">-- ----------------------------</span><br><span class="line">DROP TABLE IF EXISTS `lock_table`;</span><br><span class="line">CREATE TABLE `lock_table`  (</span><br><span class="line">  `row_key` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,</span><br><span class="line">  `xid` varchar(96) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,</span><br><span class="line">  `transaction_id` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL,</span><br><span class="line">  `branch_id` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL,</span><br><span class="line">  `resource_id` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,</span><br><span class="line">  `table_name` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,</span><br><span class="line">  `pk` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,</span><br><span class="line">  `gmt_create` datetime NULL DEFAULT NULL,</span><br><span class="line">  `gmt_modified` datetime NULL DEFAULT NULL,</span><br><span class="line">  PRIMARY KEY (`row_key`) USING BTREE</span><br><span class="line">) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;</span><br><span class="line"></span><br><span class="line">-- ----------------------------</span><br><span class="line">-- Table structure for undo_log</span><br><span class="line">-- ----------------------------</span><br><span class="line">DROP TABLE IF EXISTS `undo_log`;</span><br><span class="line">CREATE TABLE `undo_log`  (</span><br><span class="line">  `id` bigint NOT NULL AUTO_INCREMENT,</span><br><span class="line">  `branch_id` bigint NOT NULL,</span><br><span class="line">  `xid` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,</span><br><span class="line">  `context` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,</span><br><span class="line">  `rollback_info` longblob NOT NULL,</span><br><span class="line">  `log_status` int NOT NULL,</span><br><span class="line">  `log_created` datetime NOT NULL,</span><br><span class="line">  `log_modified` datetime NOT NULL,</span><br><span class="line">  `ext` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,</span><br><span class="line">  PRIMARY KEY (`id`) USING BTREE,</span><br><span class="line">  UNIQUE INDEX `ux_undo_log`(`xid`, `branch_id`) USING BTREE</span><br><span class="line">) ENGINE = InnoDB AUTO_INCREMENT = 30 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;</span><br><span class="line"></span><br><span class="line">SET FOREIGN_KEY_CHECKS = 1;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>执行seata-server.sh，在需要保持事务的Service加上@GlobalTransactional即可</p>
+
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+              <a href="/2021/12/01/1/" target="_self">
+                <i class="iconfont icon-chevronleft"></i>
+                <span>上一页</span>
+              </a>
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime" title="更新时间"></i>
+              2022-01-02 10:27:13
+            </span>
+            
+                  <span class="post-tags">
+                    <i class="iconfont icon-tags" title="标签"></i>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/" title="微服务">
+                        <b>#</b> 微服务
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/zookeeper/" title="zookeeper">
+                        <b>#</b> zookeeper
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/" title="分布式事务">
+                        <b>#</b> 分布式事务
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/seata/" title="seata">
+                        <b>#</b> seata
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+          </div>
+          <div class="post-foot-prev">
+            
+              <a href="/2022/03/05/1/" target="_self">
+                <span>下一页</span>
+                <i class="iconfont icon-chevronright"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">目录</div>
+    <div class="catalog-content">
+      <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%BC%95%E5%85%A5%E4%BE%9D%E8%B5%96"><span class="toc-text">1. 引入依赖</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E7%BC%96%E5%86%99consumer%E5%92%8Cprovider%E7%9A%84yml"><span class="toc-text">2. 编写consumer和provider的yml</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%B6%88%E8%B4%B9%E8%80%85"><span class="toc-text">消费者</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%8F%90%E4%BE%9B%E8%80%85"><span class="toc-text">提供者</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E6%9C%8D%E5%8A%A1%E6%B6%88%E8%B4%B9%E8%80%85%E5%92%8C%E6%8F%90%E4%BE%9B%E8%80%85%E5%90%AF%E5%8A%A8%E7%B1%BB"><span class="toc-text">3. 服务消费者和提供者启动类</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-%E5%B0%86seata%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%AF%BC%E5%85%A5zookeeper%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83"><span class="toc-text">4. 将seata配置文件导入zookeeper配置中心</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-%E6%96%B0%E5%A2%9Eseata%E7%9A%84yml%E9%85%8D%E7%BD%AE%E5%88%B0provider%E5%92%8Cconsumer"><span class="toc-text">5. 新增seata的yml配置到provider和consumer</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#provider-yml"><span class="toc-text">provider yml</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#consumer-yml"><span class="toc-text">consumer yml</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-%E4%B8%8B%E8%BD%BDseata%E5%B9%B6%E4%BF%AE%E6%94%B9%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-text">6. 下载seata并修改配置文件</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9file-conf"><span class="toc-text">修改file.conf</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9registry-conf"><span class="toc-text">修改registry.conf</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#7-%E5%90%84%E4%B8%AA%E5%AD%90%E6%9C%8D%E5%8A%A1%E7%9A%84%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AF%BC%E5%85%A5seata%E7%9A%84sql"><span class="toc-text">7. 各个子服务的数据库导入seata的sql</span></a></li></ol>
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+
+
+  <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+
+  <div id="vcomments"></div>
+
+  <script>
+    new Valine({
+      el: '#vcomments',
+      appId: 'LRDflYBpDYwHcKLrQNEsQwoj-gzGzoHsz',
+      appKey: 'zmuYPyF7MrRwF3Rv69GDLkV7',
+      placeholder: 'Welcome!',
+      avatar: 'retro',
+      lang: 'zh-CN'
+    })
+  </script>
+
+    <style>
+      .comments-container .v .vempty {
+        display: none!important;
+      }
+    </style>
+
+
+
+
+      </div>
+    
+  </div>
+
+
+        
+<div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          <a title="github" target="_blank" rel="noopener" href="https://github.com/miraclelll">
+            <i class="iconfont icon-github"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a title="twitter" href="">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a title="rss" href="/atom.xml">
+            <i class="iconfont icon-rss"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+  
+    
+    <div class="footer-more">
+      
+        <a href="https://www.kexi.link">Copyright © 2020 - 2023 Miracle-</a>
+        
+    </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+        
+    </div>
+  
+</div>
+
+      </div>
+
+      <div class="tools-bar">
+        <div class="back-to-top tools-bar-item hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+        
+  <div class="search-icon tools-bar-item" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="搜索...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>首次搜索，正在载入索引文件，请稍后……<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>没有找到内容，请尝试更换检索词。<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>未找到search.xml文件，具体请参考：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>请求失败，尝试重新刷新页面或稍后重试。<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+        
+  <div class="tools-bar-item theme-icon" id="switch-color-scheme">
+    <a href="javascript: void(0)">
+      <i id="theme-icon" class="iconfont icon-moon"></i>
+    </a>
+  </div>
+
+  
+<script src="/js/colorscheme.js"></script>
+
+
+
+
+
+        
+  
+    <div class="share-icon tools-bar-item">
+      <a href="javascript: void(0)" id="share-icon">
+        <i class="iconfont iconshare"></i>
+      </a>
+      <div class="share-content hidden">
+        
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + zookeeper%E9%9B%86%E6%88%90seata + '&url=' + https%3A%2F%2Fwww.kexi.link%2F2022%2F01%2F02%2F1%2F + '" target="_blank" title="Twitter">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        
+        
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=https://www.kexi.link/2022/01/02/1/" target="_blank" title="Facebook">
+            <i class="iconfont icon-facebooksquare"></i>
+          </a>
+        
+      </div>
+    </div>
+  
+  
+<script src="/js/shares.js"></script>
+
+
+
+      </div>
+    </div>
+  </body>
+</html>

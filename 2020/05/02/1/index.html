@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="zh-CN" color-mode="light">
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="keywords" content="Java,架构,微服务,DDD,Linux,MySQL,kali,渗透,靶场" />
+  <meta name="author" content="" />
+  <meta name="description" content="" />
+  <meta name="google-site-verification" content="upepwGnfWNUwayjKgibRLbZjDZIBCrA6p82D4PXtV4Q" />
+  
+  
+  <title>
+    
+      MySQL数据库原理剖析和优化 
+      
+      
+      |
+    
+     Miracle-
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+    <link rel="icon" href="/images/favicon.png">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  
+<link rel="stylesheet" href="/css/color-scheme.css">
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/iconfont/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+<link rel="stylesheet" href="/css/comments.css">
+
+
+  <!-- jquery3.3.1 -->
+  <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+  <!-- fancybox -->
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <script async src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js"></script>
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+  <script>
+    var html = document.documentElement
+    const colorMode = localStorage.getItem('color-mode')
+    if (colorMode) {
+      document.documentElement.setAttribute('color-mode', colorMode)
+    }
+  </script>
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img no-lazy src="/images/avatar.png" alt="">
+      
+    </a>
+    <div class="nickname"><a href="/">Miracle-</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">主页</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">文章</a>
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          <a href="/tags/">标签</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">关于</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+<!-- LaTex Display -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+</script>
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']]
+  }
+};
+</script>
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">MySQL数据库原理剖析和优化</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime" title="更新时间"></i>
+          2020-05-02 10:14:55
+        </span>
+        
+              <span class="post-tags">
+                <i class="iconfont icon-tags" title="标签"></i>
+                
+                <span class="span--tag">
+                  <a href="/tags/%E5%90%8E%E7%AB%AF/" title="后端">
+                    <b>#</b> 后端
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/MySQL/" title="MySQL">
+                    <b>#</b> MySQL
+                  </a>
+                </span>
+                
+              </span>
+          
+      </div>
+      <div class="markdown-body">
+        <blockquote>
+<p>数据库是Web开发中必不可少的一环，需要加强基础知识的学习和总结项目中出现的问题。难点主要在索引和分布式事务上，由于本人项目过程中使用的数据库多为MySQL和MariaDB，所以以下内容所使用的数据库环境均为MySQL</p>
+</blockquote>
+<h2 id="1-数据库底层原理"><a href="#1-数据库底层原理" class="headerlink" title="1. 数据库底层原理"></a>1. 数据库底层原理</h2><h4 id="1-1-数据存储方式"><a href="#1-1-数据存储方式" class="headerlink" title="1.1 数据存储方式"></a>1.1 数据存储方式</h4><p>数据库中InnoDB和MyISAM存储引擎底层采用的存储方式为B+树，下面列举一下各个数据结构在数据存储时的演变过程。</p>
+<ul>
+<li>数组：查询快，插入速度慢；</li>
+<li>链表：查询慢，插入速度快；</li>
+<li>二叉树：查询速度快，插入速度快，但是极端情况会变成链表，会大幅降低查询效率，例如树的节点为1（根节点）、2、3、4、5、6时且一个节点只有两个子节点存储效率太差；</li>
+<li>HASH表：将数据进行HASH运算，将运算完成后的结果存入地址，当存在碰撞时，将地址中的数据以链表的形式存储，缺点因为数据是计算后存储的，所以在范围查询时会效率低下，一般用于Memory引擎（一种完全存储在内存中的存储引擎）；</li>
+<li>红黑树：查询速度快，插入速度慢，使用树旋转优化了二叉树的极端情况，也就是当存在1、2、3、4、5、6时，会将根节点优化为3，然后层级降低为三层，但是频繁旋转的时候会导致插入速度较慢；</li>
+<li>B树：查询速度快，插入速度快，使用B树将子节点中的内容进行范围划分，且固定层级为三级。但是其中的数据都存在节点内，所以节点数据存储量太小，内存加载数据页时可容纳的数据也较少；</li>
+<li>B+树：查询速度快，插入速度快，在具备B树所有优点同时还将数据存入子节点，相邻的叶子节点之间头尾相连，在数据被使用时那么它附近的数据也会被使用，可以预加载到内存中；</li>
+</ul>
+<p>在不同的存储引擎中B+树的存储方式也有所不同，InnoDB是采用聚集索引，MyISAM是采用非聚集索引。InnoDB有且必须要有一个聚集索引，一般是主键，没有主键则是第一个非空字段。</p>
+<h4 id="1-2-主要构成"><a href="#1-2-主要构成" class="headerlink" title="1.2 主要构成"></a>1.2 主要构成</h4><p>一个完整的数据库服务具备模块如下：</p>
+<ul>
+<li>客户端<ul>
+<li>数据库驱动</li>
+<li>连接池</li>
+</ul>
+</li>
+<li>服务端<ul>
+<li> 连接器</li>
+<li> 分析器</li>
+<li> 优化器</li>
+<li> 执行器</li>
+<li> 存储引擎</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>详细流程：数据库驱动通过连接池和服务器的连接器相连，当客户端接受到数据时，会将数据发送至服务端，服务端通过连接器接受客户端的数据，需要查询的数据是否在内存中，在内存中则返回，不在内存中则通过分析器分析，分析后交给优化器优化语句为AST tree（抽象语法树）后再交给执行器执行语句，从存储引擎中拉取数据。</p>
+</blockquote>
+<p><img src="https://z3.ax1x.com/2021/11/09/It3a5T.png" alt="数据库查询执行流程"></p>
+<h4 id="1-3-数据库性能测试"><a href="#1-3-数据库性能测试" class="headerlink" title="1.3 数据库性能测试"></a>1.3 数据库性能测试</h4><p>在拿到数据库服务后，首先需要针对数据库进行压测，比较常用的压测工具有sysbench，它目前支持主流的Oracle、MySQL和PostgreSQL等数据库。</p>
+<p>数据库性能测试指标主要有CPU、内存、磁盘读写率、网络吞吐率几个指标，需要对数据库读写请求成功数和事务完成数有一个大概的估算，在面对高并发的情况时能够合理的分析数据库的负载能力。</p>
+<h2 id="2-数据库优化方式"><a href="#2-数据库优化方式" class="headerlink" title="2. 数据库优化方式"></a>2. 数据库优化方式</h2><h4 id="2-1-优化目标"><a href="#2-1-优化目标" class="headerlink" title="2.1 优化目标"></a>2.1 优化目标</h4><p>数据库的优化主要针对与查询中的慢SQL，可以通过打开配置文件中的记录慢SQL功能，针对慢SQL进行统计，找到慢SQL后使用explain关键字对SQL进行解析，结果中的关键字段分别是type（连接类型）、key（查询时使用的索引）、rows（估算出来的结果行数）、Extra（执行情况说明）。</p>
+<p>其中需要额外注意type返回的结果，返回结果有ALL、index、range、 ref、eq_ref、const、system、NULL（指当前查询语句的性能从差到好，一般是认为range则是合格），row则是对结果数据条数的估算，该值是越小越好。Extra则是对查询结果的一个说明，其中using where则是说明该查询使用where进行筛选，using index则是触发了索引覆盖即当前查询内容只需要搜索一次索引树即可查到需要的数据，using index condition则是触发回表效率较低。</p>
+<h4 id="2-2-数据库查询优化"><a href="#2-2-数据库查询优化" class="headerlink" title="2.2 数据库查询优化"></a>2.2 数据库查询优化</h4><p>最左匹配原则：越靠近where的条件，会越有限和索引匹配，当遇到了范围查询（&gt;、&lt;、between）或者like关键字时，会停止命中索引，实际操作中将索引一律靠近where条件即可；</p>
+<p>索引选取规范：索引需要区分度较高，区分度的计算公式为（distinct cloumn）/count(cloumn)，比率越大则数据越少，一般推荐值为0.1以上；</p>
+<p>回表：索引列中未查出select中所需要的字段需要二次进入聚集索引，依据主键查到数据源，相当于经历了两次B+树的搜索，效率很低下，需要避免；索引覆盖则是针对回表的优化，将查询中未命中的索引建立联合索引，避免依据索引无法查出完整数据导致的回表；</p>
+<p>索引下推：MySQL5.6优化后查询索引树时会将所有的where判断索引条件都加上，查出结果集，如果不符合结果则直接放弃该条数据。而不是在之前版本中会查出符合第一个where条件的结果再依次使用where条件进行回表查询；</p>
+<p>索引合并：MySQL5.1优化后查询可以使用多个索引一起使用；</p>
+<p>join原理：<br>最基础的索引，等于双重for循环，将两张表的内存进行循环然后查询结果集。<br>当join中的on条件为索引时，会将最外层表的数据查询出来后使用索引去查内层表，顶多只需要三次IO查询索引树即可查到结果；<br>当join中的on条件不为索引时，会让任意一张表作为驱动表，然后将结果集存入join buffer，然后使用join buffer中的内容扫描另一张表；</p>
+<p>join优化：<br>减少join中的条件数据，减少多次连接，按照机器性能新增join buffer大小；</p>
+<h4 id="2-3-数据库存储优化"><a href="#2-3-数据库存储优化" class="headerlink" title="2.3 数据库存储优化"></a>2.3 数据库存储优化</h4><p>能用小字段尽量用小字段，varchar是变长的，随着字段存储内容的变多会变长。禁止在数据库内存储文件，如果有需要存储文件的业务时，需要把文件放入文件服务器中供系统访问和下载。</p>
+<h2 id="3-数据库锁和分布式事务"><a href="#3-数据库锁和分布式事务" class="headerlink" title="3. 数据库锁和分布式事务"></a>3. 数据库锁和分布式事务</h2><h4 id="3-1-锁"><a href="#3-1-锁" class="headerlink" title="3.1 锁"></a>3.1 锁</h4><p>数据库锁一般是读写锁，读锁后只能加读锁，不能加写锁。加了写锁后其他任何读锁、写锁都无法加入，使用了MVCC机制进行了优化；</p>
+<p>InnoDB：有行锁和表锁，有索引则触发行锁，没有则是表锁；<br>MyISAM：只有表锁；</p>
+<h4 id="3-2-事务"><a href="#3-2-事务" class="headerlink" title="3.2 事务"></a>3.2 事务</h4><p>事物的四大特征ACID，在InnoDB中：</p>
+<blockquote>
+<p>原子性（Atomicity）：使用undo log来实现；</p>
+<p>一致性（Consistency）：使用A、I、D配合实现；</p>
+<p>隔离性（Isolation）：使用数据库中的事务隔离级别来实现；</p>
+<p>持久性（Durability）：使用redo log来实现；</p>
+</blockquote>
+<p>事务隔离级别</p>
+<ul>
+<li>读未提交：读到对方未提交的事务；</li>
+<li>读已提交：两次读的内容不同，第二次读到的事务为已提交的内容，也叫不可重复读；</li>
+<li>可重复读：两次读的内容都是一样的，无论第二次事务有没有提交，只要当前事务未提交，就只能读取当前事务的数据；</li>
+<li>幻读：第一次只查询到一条数据但是第二次查询查到了另一个事务提交的数据；</li>
+<li>串行化：事务之间互斥，只有第一个事务提交后后续事务才能依次执行。</li>
+</ul>
+<p>MVCC：mysql innodb存储引擎默认隔离级别是可重复读，mysql实现可重复读使用的是mvcc机制(多版本并发控制)。就是在读的时候都加上版本号，只有当其他事务提交后，才更新最新的版本号，实现原理是使用undo log。</p>
+<p>分布式事务</p>
+<ol>
+<li><p>CAP定理：</p>
+<ul>
+<li><p>C - Consistency，一致性</p>
+</li>
+<li><p>A - Availability，可用性</p>
+</li>
+<li><p>P - Partition tolerance，分区容忍性</p>
+</li>
+</ul>
+<p> CAP定理，由于分布式的存在，所以在三个特性中必须满足P，即分区容忍性，在不同的网络环境中的互相通讯的节点服务死亡后不会影响其他服务。而A和C不能共存，则衍生出来了AP、CP两种情况。</p>
+<p> CP：服务和服务之间保证了高强度的一致性，如果有服务死亡则通过投票或选举等措施等待数据同步，服务会有部分时间不可用；</p>
+<p> AP：服务和服务之间为了保证可以对外提供访问则会，不关注多台服务上的数据是否同步的情况；</p>
+</li>
+<li><p>XA规范：</p>
+<ul>
+<li>AP：appliaction 应用程序</li>
+<li>TM：truncation manager 事务管理器</li>
+<li>RM：resource manager 资源管理器</li>
+<li>CRM：communication resource manager 通讯资源管理器</li>
+</ul>
+</li>
+<li><p>解决方案</p>
+<ul>
+<li>2PC方案</li>
+<li>3PC方案</li>
+<li>TCC方案</li>
+<li>本地消息表方案</li>
+<li>最终一致性方案</li>
+<li>最大努力通知方案</li>
+</ul>
+</li>
+</ol>
+<h2 id="4-分库分表"><a href="#4-分库分表" class="headerlink" title="4. 分库分表"></a>4. 分库分表</h2><h4 id="4-1-概念"><a href="#4-1-概念" class="headerlink" title="4.1 概念"></a>4.1 概念</h4><blockquote>
+<p>分而治之，将大规模的数据按照某种规律进行划分，垂直分表应该在设计表的时候根据业务都划分完毕，所以架构中需要处理的分表主要为水平分表</p>
+</blockquote>
+<h4 id="4-2-相关实现"><a href="#4-2-相关实现" class="headerlink" title="4.2 相关实现"></a>4.2 相关实现</h4><p>mysql分区表语法 PARTITION BY RANGE，建议分区列为可阶段性拆分列，例如时间，年龄，类别之类，使用sharding jdbc进行分库分表</p>
+<h2 id="5-高可用"><a href="#5-高可用" class="headerlink" title="5. 高可用"></a>5. 高可用</h2><h4 id="5-1-读写分离"><a href="#5-1-读写分离" class="headerlink" title="5.1 读写分离"></a>5.1 读写分离</h4><ul>
+<li><input disabled="" type="checkbox"> 待完成</li>
+</ul>
+<h2 id="6-Tips"><a href="#6-Tips" class="headerlink" title="6. Tips"></a>6. Tips</h2><h4 id="6-1-操作系统相关知识"><a href="#6-1-操作系统相关知识" class="headerlink" title="6.1 操作系统相关知识"></a>6.1 操作系统相关知识</h4><ul>
+<li><input disabled="" type="checkbox"> 待完成</li>
+</ul>
+<h4 id="6-2-Docker部署相关常见问题点"><a href="#6-2-Docker部署相关常见问题点" class="headerlink" title="6.2 Docker部署相关常见问题点"></a>6.2 Docker部署相关常见问题点</h4><ol>
+<li>时区需要调整到上海</li>
+<li>默认开启了大小写校验，可按需更改</li>
+</ol>
+<h4 id="6-3-数据库连接池"><a href="#6-3-数据库连接池" class="headerlink" title="6.3 数据库连接池"></a>6.3 数据库连接池</h4><ol>
+<li>navicat连接数据库需要把保持连接间隔降低到30s，默认时长为240s，会导致响应时间过长导致数据库连接被释放掉</li>
+</ol>
+<ul>
+<li><input disabled="" type="checkbox"> 待完成</li>
+</ul>
+<p>参考文献：<br><a target="_blank" rel="noopener" href="https://tech.meituan.com/2014/06/30/mysql-index.html">《MySQL索引原理及慢查询优化》</a>- 美团技术团队</p>
+
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime" title="更新时间"></i>
+              2020-05-02 10:14:55
+            </span>
+            
+                  <span class="post-tags">
+                    <i class="iconfont icon-tags" title="标签"></i>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/%E5%90%8E%E7%AB%AF/" title="后端">
+                        <b>#</b> 后端
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/MySQL/" title="MySQL">
+                        <b>#</b> MySQL
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+          </div>
+          <div class="post-foot-prev">
+            
+              <a href="/2021/01/02/1/" target="_self">
+                <span>下一页</span>
+                <i class="iconfont icon-chevronright"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">目录</div>
+    <div class="catalog-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86"><span class="toc-text">1. 数据库底层原理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-1-%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E6%96%B9%E5%BC%8F"><span class="toc-text">1.1 数据存储方式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-2-%E4%B8%BB%E8%A6%81%E6%9E%84%E6%88%90"><span class="toc-text">1.2 主要构成</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-3-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95"><span class="toc-text">1.3 数据库性能测试</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%95%B0%E6%8D%AE%E5%BA%93%E4%BC%98%E5%8C%96%E6%96%B9%E5%BC%8F"><span class="toc-text">2. 数据库优化方式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#2-1-%E4%BC%98%E5%8C%96%E7%9B%AE%E6%A0%87"><span class="toc-text">2.1 优化目标</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-2-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96"><span class="toc-text">2.2 数据库查询优化</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-3-%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AD%98%E5%82%A8%E4%BC%98%E5%8C%96"><span class="toc-text">2.3 数据库存储优化</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81%E5%92%8C%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1"><span class="toc-text">3. 数据库锁和分布式事务</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#3-1-%E9%94%81"><span class="toc-text">3.1 锁</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-2-%E4%BA%8B%E5%8A%A1"><span class="toc-text">3.2 事务</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8"><span class="toc-text">4. 分库分表</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#4-1-%E6%A6%82%E5%BF%B5"><span class="toc-text">4.1 概念</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-2-%E7%9B%B8%E5%85%B3%E5%AE%9E%E7%8E%B0"><span class="toc-text">4.2 相关实现</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E9%AB%98%E5%8F%AF%E7%94%A8"><span class="toc-text">5. 高可用</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#5-1-%E8%AF%BB%E5%86%99%E5%88%86%E7%A6%BB"><span class="toc-text">5.1 读写分离</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Tips"><span class="toc-text">6. Tips</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#6-1-%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86"><span class="toc-text">6.1 操作系统相关知识</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-2-Docker%E9%83%A8%E7%BD%B2%E7%9B%B8%E5%85%B3%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E7%82%B9"><span class="toc-text">6.2 Docker部署相关常见问题点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-3-%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E6%B1%A0"><span class="toc-text">6.3 数据库连接池</span></a></li></ol></li></ol></li></ol>
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+
+
+  <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+
+  <div id="vcomments"></div>
+
+  <script>
+    new Valine({
+      el: '#vcomments',
+      appId: 'LRDflYBpDYwHcKLrQNEsQwoj-gzGzoHsz',
+      appKey: 'zmuYPyF7MrRwF3Rv69GDLkV7',
+      placeholder: 'Welcome!',
+      avatar: 'retro',
+      lang: 'zh-CN'
+    })
+  </script>
+
+    <style>
+      .comments-container .v .vempty {
+        display: none!important;
+      }
+    </style>
+
+
+
+
+      </div>
+    
+  </div>
+
+
+        
+<div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          <a title="github" target="_blank" rel="noopener" href="https://github.com/miraclelll">
+            <i class="iconfont icon-github"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a title="twitter" href="">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a title="rss" href="/atom.xml">
+            <i class="iconfont icon-rss"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+  
+    
+    <div class="footer-more">
+      
+        <a href="https://www.kexi.link">Copyright © 2020 - 2023 Miracle-</a>
+        
+    </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+        
+    </div>
+  
+</div>
+
+      </div>
+
+      <div class="tools-bar">
+        <div class="back-to-top tools-bar-item hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+        
+  <div class="search-icon tools-bar-item" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="搜索...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>首次搜索，正在载入索引文件，请稍后……<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>没有找到内容，请尝试更换检索词。<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>未找到search.xml文件，具体请参考：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>请求失败，尝试重新刷新页面或稍后重试。<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+        
+  <div class="tools-bar-item theme-icon" id="switch-color-scheme">
+    <a href="javascript: void(0)">
+      <i id="theme-icon" class="iconfont icon-moon"></i>
+    </a>
+  </div>
+
+  
+<script src="/js/colorscheme.js"></script>
+
+
+
+
+
+        
+  
+    <div class="share-icon tools-bar-item">
+      <a href="javascript: void(0)" id="share-icon">
+        <i class="iconfont iconshare"></i>
+      </a>
+      <div class="share-content hidden">
+        
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + MySQL%E6%95%B0%E6%8D%AE%E5%BA%93%E5%8E%9F%E7%90%86%E5%89%96%E6%9E%90%E5%92%8C%E4%BC%98%E5%8C%96 + '&url=' + https%3A%2F%2Fwww.kexi.link%2F2020%2F05%2F02%2F1%2F + '" target="_blank" title="Twitter">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        
+        
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=https://www.kexi.link/2020/05/02/1/" target="_blank" title="Facebook">
+            <i class="iconfont icon-facebooksquare"></i>
+          </a>
+        
+      </div>
+    </div>
+  
+  
+<script src="/js/shares.js"></script>
+
+
+
+      </div>
+    </div>
+  </body>
+</html>

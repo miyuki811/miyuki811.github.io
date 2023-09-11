@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="zh-CN" color-mode="light">
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="keywords" content="Java,架构,微服务,DDD,Linux,MySQL,kali,渗透,靶场" />
+  <meta name="author" content="" />
+  <meta name="description" content="" />
+  <meta name="google-site-verification" content="upepwGnfWNUwayjKgibRLbZjDZIBCrA6p82D4PXtV4Q" />
+  
+  
+  <title>
+    
+      VMware安装Kali、基础属性、网络配置及可视化Clash部署 
+      
+      
+      |
+    
+     Miracle-
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+    <link rel="icon" href="/images/favicon.png">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  
+<link rel="stylesheet" href="/css/color-scheme.css">
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/iconfont/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+<link rel="stylesheet" href="/css/comments.css">
+
+
+  <!-- jquery3.3.1 -->
+  <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+  <!-- fancybox -->
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <script async src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js"></script>
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+  <script>
+    var html = document.documentElement
+    const colorMode = localStorage.getItem('color-mode')
+    if (colorMode) {
+      document.documentElement.setAttribute('color-mode', colorMode)
+    }
+  </script>
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img no-lazy src="/images/avatar.png" alt="">
+      
+    </a>
+    <div class="nickname"><a href="/">Miracle-</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">主页</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">文章</a>
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          <a href="/tags/">标签</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">关于</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+<!-- LaTex Display -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+</script>
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']]
+  }
+};
+</script>
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">VMware安装Kali、基础属性、网络配置及可视化Clash部署</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime" title="更新时间"></i>
+          2023-04-15 14:00:31
+        </span>
+        
+              <span class="post-tags">
+                <i class="iconfont icon-tags" title="标签"></i>
+                
+                <span class="span--tag">
+                  <a href="/tags/Kali/" title="Kali">
+                    <b>#</b> Kali
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/" title="网络安全">
+                    <b>#</b> 网络安全
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/%E6%9C%8D%E5%8A%A1%E9%83%A8%E7%BD%B2/" title="服务部署">
+                    <b>#</b> 服务部署
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/%E5%9F%BA%E7%A1%80%E8%BF%90%E7%BB%B4/" title="基础运维">
+                    <b>#</b> 基础运维
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/Clash/" title="Clash">
+                    <b>#</b> Clash
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/Clash-for-windows/" title="Clash for windows">
+                    <b>#</b> Clash for windows
+                  </a>
+                </span>
+                
+              </span>
+          
+      </div>
+      <div class="markdown-body">
+        <blockquote>
+<p>Kali是网络安全中必不可少需要接触操作系统，其中包含了大量的信息收集、漏洞分析、维权、逆向等工具，而今天则是详细的概述一下Kali操作系统的安装步骤、常用配置。由于部分安全工具需要在Github上下载，所以会讲解可视化界面如何配置Clash便于学习。</p>
+</blockquote>
+<p><strong>声明不要在未经允许的情况下进行任何网络计算机渗透，禁止对任意政务、教育、公益服务进行渗透，如果需要测试请自行搭建靶场环境，本系列教程仅用于学习，通过本文中教程造成的任何恶意行为，均由操作者负责</strong></p>
+<h2 id="1-Kali镜像获取和安装"><a href="#1-Kali镜像获取和安装" class="headerlink" title="1. Kali镜像获取和安装"></a>1. Kali镜像获取和安装</h2><h4 id="1-1-Kali官网和不同版本区别"><a href="#1-1-Kali官网和不同版本区别" class="headerlink" title="1.1 Kali官网和不同版本区别"></a>1.1 Kali官网和不同版本区别</h4><p>Kali的官网是<a target="_blank" rel="noopener" href="https://note.youdao.com/">https://www.kali.org/</a>，然后点击页面中的download按钮则会跳转到kali所有的<a target="_blank" rel="noopener" href="https://www.kali.org/get-kali/">下载页</a>，如下图所示，一般常用的安装方式都依次为</p>
+<ul>
+<li><em>Install Images</em> 实体服务器安装，能够更加完整的进行控制硬件，能够完整利用服务器内部模块的WIFI和GPU，下载完成后是iso镜像文件</li>
+<li><em>Virtual Machines</em> 虚拟机安装，下载完成之后会是一个压缩包解压后使用VMware打开即可</li>
+<li><em>ARM</em> 一般用于树莓派设备安装Kali</li>
+<li><em>Mobile</em> 移动安卓设备安装Kali</li>
+<li><em>Cloud</em> 云端安装Kali</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://imgse.com/i/p9Ek760"><img src="https://s1.ax1x.com/2023/04/21/p9Ek760.png" alt="Kali"></a></p>
+<p>但是一般会选用iso镜像安装，因为可以自己更加灵活的分配硬件参数，所以点击Install Images后会跳转到下载页面。其中Installer是较为稳定的自定义离线安装版，只需要下载即可，可以自定义安装策略，后续的Weekly则是每周更新的最新版，但是会比较不稳定，Everything则是安装全部工具的镜像包比较大，而NetInstaller则是通过网络来安装所有包，一般直接点击Installer即可开始下载。</p>
+<p><a target="_blank" rel="noopener" href="https://imgse.com/i/p9EAinK"><img src="https://s1.ax1x.com/2023/04/21/p9EAinK.png" alt="kali"></a></p>
+<h4 id="1-2-安装配置"><a href="#1-2-安装配置" class="headerlink" title="1.2 安装配置"></a>1.2 安装配置</h4><p>下载完成可以得到一个iso镜像文件，打开VMware，点击新增虚拟机，选择类型配置为经典类型，下一步选择安装程序光盘映像文件，此路径为1.1中下载完成后的iso文件路径。</p>
+<p><a target="_blank" rel="noopener" href="https://imgse.com/i/p9EEErV"><img src="https://s1.ax1x.com/2023/04/21/p9EEErV.png" alt="安装配置.png"></a></p>
+<p>点击下一步</p>
+<p><a target="_blank" rel="noopener" href="https://imgse.com/i/p9EEtaD"><img src="https://s1.ax1x.com/2023/04/21/p9EEtaD.png" alt="安装配置.png"></a></p>
+<p>点击下一步，指定虚拟机名称，指定虚拟机文件存放路径，接下来一直点击下一步即可完成，也可以依据自己机器配置手动设置分配给虚拟机的CPU核数、内存大小（一般可视化界面推荐为8G）、硬盘空间大小。<br>将镜像文件导入到VMware中生成虚拟机后，打开虚拟机，点击回车，等待数秒后会进入系统语言选择界面，选择适合自己的语言和国家地区，会开始安装介质等待数秒即可。<br><a target="_blank" rel="noopener" href="https://imgse.com/i/p9EVkJH"><img src="https://s1.ax1x.com/2023/04/21/p9EVkJH.png" alt="安装配置.png"></a><br>命名主机名笔者一般默认都是kali，域名填写可以直接留白，用户名和密码一般也都设置为kali。<br><a target="_blank" rel="noopener" href="https://imgse.com/i/p9EZrE8"><img src="https://s1.ax1x.com/2023/04/21/p9EZrE8.png" alt="安装配置.png"></a><br>接下来一直点击继续按钮，直到出现询问是否创建空分区表选择是即可，则会开始安装基础的Kali系统，进行APT源配置，等待安装完成后，点击继续按钮默认安装相关软件即可，等待安装完成，会提示是否安装GRUB启动引导器到主驱动器选择是点击继续按钮，会要求选择安装启动引导器的设备，选择/dev/sda点击继续即可完成安装。<br><a target="_blank" rel="noopener" href="https://imgse.com/i/p9EQiRS"><img src="https://s1.ax1x.com/2023/04/21/p9EQiRS.png" alt="安装配置.png"></a></p>
+<h2 id="2-Kali安装后体验优化"><a href="#2-Kali安装后体验优化" class="headerlink" title="2. Kali安装后体验优化"></a>2. Kali安装后体验优化</h2><h4 id="2-1-root密码修改"><a href="#2-1-root密码修改" class="headerlink" title="2.1 root密码修改"></a>2.1 root密码修改</h4><p>由于Kali内部很多工具执行都需要root权限，而默认Kali在安装系统的时候只是让我们创建了一个子账号，所以在执行命令时会经常提示权限不足，那么可以通过修改root密码，每次使用root账户登录即可。<br>具体的操作步骤为，使用1.2中的kali账号登录Kali系统，按住Ctrl+Alt+T则可以快捷打开命令行输入<code>sudo passwd root</code>，则会提示你输入root的新密码，笔者此处也是用的kali，修改完成会提示重启服务，重启使用root和刚设置的密码即可实现root账户登录Kali。<br><a target="_blank" rel="noopener" href="https://imgse.com/i/p9EGsa9"><img src="https://s1.ax1x.com/2023/04/21/p9EGsa9.png" alt="p9EGsa9.png"></a></p>
+<h4 id="2-2-设置中文输入法"><a href="#2-2-设置中文输入法" class="headerlink" title="2.2 设置中文输入法"></a>2.2 设置中文输入法</h4><p>使用root用户登录后会发现在使用过程中有场景需要输入中文的情况，则需要安装iBus，在安装iBus之前需要对Kali的源进行更新，打开命令行输入<code>apt-get update</code>回车，接着输入<code>apt-get upgrade</code> 更新源中的相关软件，可能需要长时间的等待，在更新完成之后，输入<code>apt-get install -y ibus ibus-pinyin</code>即可。<br>当安装完毕之后选择左上角的Kali图标点击设置选择输入法，一直选择确定或是，然后勾选iBus点击确定即可指定输入法为iBus输入法。<br><a target="_blank" rel="noopener" href="https://imgse.com/i/p9EUK0O"><img src="https://s1.ax1x.com/2023/04/21/p9EUK0O.png" alt="设置中文输入法.png"></a><br>之后选择左上角的Kali图标点击设置选择iBus首选项，选择启动iBus然后可以进行iBus的配置，可以设置切换输入法的快捷键，笔者此处选的Ctrl+Space，如果不需要使用五笔输入法，则可以点击输入法删除中文-Bopomofo这一栏，当然可以按照自己喜好进行配置，配置完成后重启系统，中文输入法即可生效。<br><a target="_blank" rel="noopener" href="https://imgse.com/i/p9ENgTe"><img src="https://s1.ax1x.com/2023/04/21/p9ENgTe.png" alt="设置中文输入法.png"></a></p>
+<h2 id="3-Kali固定IP到主机内网环境"><a href="#3-Kali固定IP到主机内网环境" class="headerlink" title="3. Kali固定IP到主机内网环境"></a>3. Kali固定IP到主机内网环境</h2><h4 id="3-1-修改虚拟机网络配置和Kali网络配置"><a href="#3-1-修改虚拟机网络配置和Kali网络配置" class="headerlink" title="3.1 修改虚拟机网络配置和Kali网络配置"></a>3.1 修改虚拟机网络配置和Kali网络配置</h4><p>由于在进行渗透测试时需要众多虚拟机进行通讯，所以需要修改Kali的网络配置，首先需要打开VMware，点击虚拟机选择设置，选择网络适配器修改为桥接模式。<br><a target="_blank" rel="noopener" href="https://imgse.com/i/p9EaU2R"><img src="https://s1.ax1x.com/2023/04/21/p9EaU2R.png" alt="修改虚拟机网络配置.png"></a><br>继续打开VMware，点击编辑选择虚拟网络编辑器，选择更改设置，将Vmnet0修改为桥接模式-自动<br><a target="_blank" rel="noopener" href="https://imgse.com/i/p9EaodS"><img src="https://s1.ax1x.com/2023/04/21/p9EaodS.png" alt="修改虚拟机网络配置.png"></a><br>首先在本地主机上打开命令行，一般Windows输入ipconfig，Linux输入ifconfig，如果主机是Wifi连接则查看无线局域网适配器 WLAN，如果是网线连接则查看以太网适配器，此处拿笔者本地实例，本机用的Wifi则查看相关的三个属性IPv4地址、子网掩码、默认网关。<br><a target="_blank" rel="noopener" href="https://imgse.com/i/p9EwHvn"><img src="https://s1.ax1x.com/2023/04/21/p9EwHvn.png" alt="修改虚拟机网络配置.png"></a><br>接下来进入Kali中设置固定ip，Kali中的子网掩码和默认网关是一与主机一致的，IPv4地址设置任意一个网关范围内的不冲突的即可，笔者此处设置的是192.168.31.100，可以使用可视化界面设置也可以通过命令行设置，此处稍微简单介绍一下可视化界面的设置方式，点击右上角的网口图标，选择编辑连接，点击IPv4设置，选择方法为手动，输入地址、子网掩码和网关即可<br><a target="_blank" rel="noopener" href="https://imgse.com/i/p9EBc0P"><img src="https://s1.ax1x.com/2023/04/21/p9EBc0P.png" alt="修改虚拟机网络配置.png"></a><br><a target="_blank" rel="noopener" href="https://imgse.com/i/p9E0odK"><img src="https://s1.ax1x.com/2023/04/21/p9E0odK.png" alt="修改虚拟机网络配置.png"></a><br>设置完成后重启点击网络，右键网口图标，选择连接信息，变更为手动设置的结果即可。<br><a target="_blank" rel="noopener" href="https://imgse.com/i/p9E00rq"><img src="https://s1.ax1x.com/2023/04/21/p9E00rq.png" alt="修改虚拟机网络配置.png"></a><br>后续需要输入ping指令ping主机ip，如果能正确ping通则说明配置正确，如果无法ping通则需要额外考虑主机的防火墙是否关闭，Windows防火墙未关闭的情况下是无法响应ping指令。</p>
+<h2 id="4-可视化Clash安装"><a href="#4-可视化Clash安装" class="headerlink" title="4. 可视化Clash安装"></a>4. 可视化Clash安装</h2><h4 id="4-1-安装Clash"><a href="#4-1-安装Clash" class="headerlink" title="4.1 安装Clash"></a>4.1 安装Clash</h4><p>Clash for windows是一个可视化的Clash管理工具，具备多端可视化显示，首先打开<a target="_blank" rel="noopener" href="https://github.com/Fndroid/clash_for_windows_pkg/tags">Clash for windows</a>的下载界面，选择任意版本点击，选中Assets中的x64-linux.tar.gz<br><a target="_blank" rel="noopener" href="https://imgse.com/i/p9EYy1x"><img src="https://s1.ax1x.com/2023/04/21/p9EYy1x.png" alt="安装Clash.png"></a><br>下载并解压，解压完成之后查看文件中的cfw文件是否具备权限，在解压文件夹中右键选择在这里打开终端，然后输入<code>./cfw --no-sandbox</code>即可唤醒Clash for windows。<br><a target="_blank" rel="noopener" href="https://imgse.com/i/p9EBNTK"><img src="https://s1.ax1x.com/2023/04/21/p9EBNTK.png" alt="安装Clash.png"></a></p>
+
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+              <a href="/2022/12/10/1/" target="_self">
+                <i class="iconfont icon-chevronleft"></i>
+                <span>上一页</span>
+              </a>
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime" title="更新时间"></i>
+              2023-04-15 14:00:31
+            </span>
+            
+                  <span class="post-tags">
+                    <i class="iconfont icon-tags" title="标签"></i>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/Kali/" title="Kali">
+                        <b>#</b> Kali
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/" title="网络安全">
+                        <b>#</b> 网络安全
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/%E6%9C%8D%E5%8A%A1%E9%83%A8%E7%BD%B2/" title="服务部署">
+                        <b>#</b> 服务部署
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/%E5%9F%BA%E7%A1%80%E8%BF%90%E7%BB%B4/" title="基础运维">
+                        <b>#</b> 基础运维
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/Clash/" title="Clash">
+                        <b>#</b> Clash
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/Clash-for-windows/" title="Clash for windows">
+                        <b>#</b> Clash for windows
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+          </div>
+          <div class="post-foot-prev">
+            
+          </div>
+        </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">目录</div>
+    <div class="catalog-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Kali%E9%95%9C%E5%83%8F%E8%8E%B7%E5%8F%96%E5%92%8C%E5%AE%89%E8%A3%85"><span class="toc-text">1. Kali镜像获取和安装</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-1-Kali%E5%AE%98%E7%BD%91%E5%92%8C%E4%B8%8D%E5%90%8C%E7%89%88%E6%9C%AC%E5%8C%BA%E5%88%AB"><span class="toc-text">1.1 Kali官网和不同版本区别</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-2-%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE"><span class="toc-text">1.2 安装配置</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Kali%E5%AE%89%E8%A3%85%E5%90%8E%E4%BD%93%E9%AA%8C%E4%BC%98%E5%8C%96"><span class="toc-text">2. Kali安装后体验优化</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#2-1-root%E5%AF%86%E7%A0%81%E4%BF%AE%E6%94%B9"><span class="toc-text">2.1 root密码修改</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-2-%E8%AE%BE%E7%BD%AE%E4%B8%AD%E6%96%87%E8%BE%93%E5%85%A5%E6%B3%95"><span class="toc-text">2.2 设置中文输入法</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Kali%E5%9B%BA%E5%AE%9AIP%E5%88%B0%E4%B8%BB%E6%9C%BA%E5%86%85%E7%BD%91%E7%8E%AF%E5%A2%83"><span class="toc-text">3. Kali固定IP到主机内网环境</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#3-1-%E4%BF%AE%E6%94%B9%E8%99%9A%E6%8B%9F%E6%9C%BA%E7%BD%91%E7%BB%9C%E9%85%8D%E7%BD%AE%E5%92%8CKali%E7%BD%91%E7%BB%9C%E9%85%8D%E7%BD%AE"><span class="toc-text">3.1 修改虚拟机网络配置和Kali网络配置</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%8F%AF%E8%A7%86%E5%8C%96Clash%E5%AE%89%E8%A3%85"><span class="toc-text">4. 可视化Clash安装</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#4-1-%E5%AE%89%E8%A3%85Clash"><span class="toc-text">4.1 安装Clash</span></a></li></ol></li></ol></li></ol>
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+
+
+  <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+
+  <div id="vcomments"></div>
+
+  <script>
+    new Valine({
+      el: '#vcomments',
+      appId: 'LRDflYBpDYwHcKLrQNEsQwoj-gzGzoHsz',
+      appKey: 'zmuYPyF7MrRwF3Rv69GDLkV7',
+      placeholder: 'Welcome!',
+      avatar: 'retro',
+      lang: 'zh-CN'
+    })
+  </script>
+
+    <style>
+      .comments-container .v .vempty {
+        display: none!important;
+      }
+    </style>
+
+
+
+
+      </div>
+    
+  </div>
+
+
+        
+<div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          <a title="github" target="_blank" rel="noopener" href="https://github.com/miraclelll">
+            <i class="iconfont icon-github"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a title="twitter" href="">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a title="rss" href="/atom.xml">
+            <i class="iconfont icon-rss"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+  
+    
+    <div class="footer-more">
+      
+        <a href="https://www.kexi.link">Copyright © 2020 - 2023 Miracle-</a>
+        
+    </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+        
+    </div>
+  
+</div>
+
+      </div>
+
+      <div class="tools-bar">
+        <div class="back-to-top tools-bar-item hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+        
+  <div class="search-icon tools-bar-item" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="搜索...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>首次搜索，正在载入索引文件，请稍后……<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>没有找到内容，请尝试更换检索词。<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>未找到search.xml文件，具体请参考：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>请求失败，尝试重新刷新页面或稍后重试。<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+        
+  <div class="tools-bar-item theme-icon" id="switch-color-scheme">
+    <a href="javascript: void(0)">
+      <i id="theme-icon" class="iconfont icon-moon"></i>
+    </a>
+  </div>
+
+  
+<script src="/js/colorscheme.js"></script>
+
+
+
+
+
+        
+  
+    <div class="share-icon tools-bar-item">
+      <a href="javascript: void(0)" id="share-icon">
+        <i class="iconfont iconshare"></i>
+      </a>
+      <div class="share-content hidden">
+        
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + VMware%E5%AE%89%E8%A3%85Kali%E3%80%81%E5%9F%BA%E7%A1%80%E5%B1%9E%E6%80%A7%E3%80%81%E7%BD%91%E7%BB%9C%E9%85%8D%E7%BD%AE%E5%8F%8A%E5%8F%AF%E8%A7%86%E5%8C%96Clash%E9%83%A8%E7%BD%B2 + '&url=' + https%3A%2F%2Fwww.kexi.link%2F2023%2F04%2F15%2F1%2F + '" target="_blank" title="Twitter">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        
+        
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=https://www.kexi.link/2023/04/15/1/" target="_blank" title="Facebook">
+            <i class="iconfont icon-facebooksquare"></i>
+          </a>
+        
+      </div>
+    </div>
+  
+  
+<script src="/js/shares.js"></script>
+
+
+
+      </div>
+    </div>
+  </body>
+</html>

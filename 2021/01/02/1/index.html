@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="zh-CN" color-mode="light">
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="keywords" content="Java,架构,微服务,DDD,Linux,MySQL,kali,渗透,靶场" />
+  <meta name="author" content="" />
+  <meta name="description" content="" />
+  <meta name="google-site-verification" content="upepwGnfWNUwayjKgibRLbZjDZIBCrA6p82D4PXtV4Q" />
+  
+  
+  <title>
+    
+      Netty应用以及Server端启动源码（一） 
+      
+      
+      |
+    
+     Miracle-
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+    <link rel="icon" href="/images/favicon.png">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  
+<link rel="stylesheet" href="/css/color-scheme.css">
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/iconfont/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+<link rel="stylesheet" href="/css/comments.css">
+
+
+  <!-- jquery3.3.1 -->
+  <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+  <!-- fancybox -->
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <script async src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js"></script>
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+  <script>
+    var html = document.documentElement
+    const colorMode = localStorage.getItem('color-mode')
+    if (colorMode) {
+      document.documentElement.setAttribute('color-mode', colorMode)
+    }
+  </script>
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img no-lazy src="/images/avatar.png" alt="">
+      
+    </a>
+    <div class="nickname"><a href="/">Miracle-</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">主页</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">文章</a>
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          <a href="/tags/">标签</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">关于</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+<!-- LaTex Display -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+</script>
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']]
+  }
+};
+</script>
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">Netty应用以及Server端启动源码（一）</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime" title="更新时间"></i>
+          2021-01-02 14:13:46
+        </span>
+        
+              <span class="post-tags">
+                <i class="iconfont icon-tags" title="标签"></i>
+                
+                <span class="span--tag">
+                  <a href="/tags/Netty/" title="Netty">
+                    <b>#</b> Netty
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/%E5%90%8E%E7%AB%AF/" title="后端">
+                    <b>#</b> 后端
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/%E6%BA%90%E7%A0%81/" title="源码">
+                    <b>#</b> 源码
+                  </a>
+                </span>
+                
+              </span>
+          
+      </div>
+      <div class="markdown-body">
+        <blockquote>
+<p>Netty是基于事件处理的高性能异步非阻塞网络框架，Zookeeper、Dubbo、RocketMQ底层都有Netty的影子，是网络编程的基石，需要熟练掌握，本章会介绍NIO相关知识和Netty Server端源码</p>
+</blockquote>
+<h2 id="1-NIO"><a href="#1-NIO" class="headerlink" title="1. NIO"></a>1. NIO</h2><h4 id="1-1-运行状态和异步同步"><a href="#1-1-运行状态和异步同步" class="headerlink" title="1.1 运行状态和异步同步"></a>1.1 运行状态和异步同步</h4><p>泡茶例子：</p>
+<ul>
+<li>同步：自己来烧水，自己来泡茶；</li>
+<li>异步：自己烧水，然后走了换另一个人来泡茶；</li>
+<li>阻塞：自己来烧水，自己需要站在原地等水烧开；</li>
+<li>非阻塞：自己来烧水，自己可以在烧水途中做其他的事情；</li>
+</ul>
+<h4 id="1-2-网络IO"><a href="#1-2-网络IO" class="headerlink" title="1.2 网络IO"></a>1.2 网络IO</h4><ul>
+<li>BIO：blocking I/O，阻塞性IO，需要当客户端发送请求之前则建立一个阻塞线程，去监听端口，待请求建立连接后继续阻塞，待客户端发送数据后再处理数据，适用于连接数固定且较小的项目中；</li>
+<li>NIO：new I/O，使用单独的线程进行轮询是否有人建立连接，当建立了连接后才会丢给工作线程组，让线程组以块的模式来处理客户端数据，适用于连接数较大且连接时长较短的业务；</li>
+<li>AIO：asynchronous I/O，完全异步的处理内核态的客户端数据，无需关心建立连接的细节，只需要根据系统通知进行事件处理即可，适用于连接数较大且连接时长较长的业务，用于系统调用比较多的场景，例如文件下载；</li>
+</ul>
+<h4 id="1-3-Reactor模式"><a href="#1-3-Reactor模式" class="headerlink" title="1.3 Reactor模式"></a>1.3 Reactor模式</h4><p>主要分为reactor和handler，reactor用来处理客户端连接，handler用来负责处理相关请求。</p>
+<h2 id="2-Netty-Server端启动源码"><a href="#2-Netty-Server端启动源码" class="headerlink" title="2. Netty Server端启动源码"></a>2. Netty Server端启动源码</h2><h4 id="2-1-声明线程组"><a href="#2-1-声明线程组" class="headerlink" title="2.1 声明线程组"></a>2.1 声明线程组</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// 初始化工作线程组</span><br><span class="line">NioEventLoopGroup workerGroup = new NioEventLoopGroup();</span><br></pre></td></tr></table></figure>
+<p>EventLoopGroup：线程池，如果不设置内部线程数则默认为CPU核数和两倍，内部存放EventExecutor数组，每个数组存放一个初始化完成了的NioEventLoop对象。<br>NioEventLoop：本质上是一个线程，因为其继承SingleThreadEbentLoop，在初始化时设置Selector和TaskQueue，Selector为多路复用器，TaskQueue为任务队列。</p>
+<h4 id="2-2-初始化ServerBootstrap并设置参数"><a href="#2-2-初始化ServerBootstrap并设置参数" class="headerlink" title="2.2 初始化ServerBootstrap并设置参数"></a>2.2 初始化ServerBootstrap并设置参数</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// 设置ServerBootstrap相关的Channel和EventLoopGroup线程池</span><br><span class="line">ServerBootstrap serverBootstrap = bootstrap.group(bossGroup, workerGroup)</span><br><span class="line">        .channel(NioServerSocketChannel.class)</span><br><span class="line">        .handler(new LoggingHandler(LogLevel.INFO))</span><br><span class="line">        .childHandler(initializer);</span><br></pre></td></tr></table></figure>
+<p>设置ServerBootstrap的Channel类型为NioServerSocketChannel，设置handler。</p>
+<h4 id="2-3-初始化Channel并监听Selector"><a href="#2-3-初始化Channel并监听Selector" class="headerlink" title="2.3 初始化Channel并监听Selector"></a>2.3 初始化Channel并监听Selector</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">// 初始化Channel并绑定端口</span><br><span class="line">Channel channel = serverBootstrap.bind(port).sync().channel();</span><br><span class="line">...</span><br><span class="line">// 设置Channel只关注连接事件</span><br><span class="line">public NioServerSocketChannel(ServerSocketChannel channel) &#123;</span><br><span class="line">    super(null, channel, SelectionKey.OP_ACCEPT);</span><br><span class="line">    config = new NioServerSocketChannelConfig(this, javaChannel().socket());</span><br><span class="line">&#125;</span><br><span class="line">...</span><br><span class="line">// 设置当前SelectableChannel为非阻塞</span><br><span class="line">ch.configureBlocking(false);</span><br><span class="line">...</span><br><span class="line">// 通过反射创建Channel对象并完成Channel自己的初始化</span><br><span class="line">channel = channelFactory.newChannel();</span><br></pre></td></tr></table></figure>
+<p>执行绑定事件，在AbstractBootstrap中执行doBind方法，进入AbstractBootstrap中调用initAndRegister方法，进行初始化ServerBootstrap和进行注册。NioServerSocketChannel本质上就是Java NIO中的ServerSocketChannel。通过上面指定的Channel类型为NioServerSocketChannel.class来生成NioServerSocketChannel作为ServerBootstrap中的Channel。将Channel和ServerBootstrap绑定，并初始化Channel只关注SelectionKey.OP_ACCEPT事件，并在初始化过程中设置SelectableChannel的阻塞状态为非阻塞。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">// workerGroup</span><br><span class="line">final EventLoopGroup currentChildGroup = childGroup;</span><br><span class="line">// 自定义的handler</span><br><span class="line">final ChannelHandler currentChildHandler = childHandler;</span><br><span class="line">...</span><br><span class="line">p.addLast(new ChannelInitializer&lt;Channel&gt;() &#123;</span><br><span class="line">    @Override</span><br><span class="line">    public void initChannel(final Channel ch) &#123;</span><br><span class="line">        final ChannelPipeline pipeline = ch.pipeline();</span><br><span class="line">        ChannelHandler handler = config.handler();</span><br><span class="line">        if (handler != null) &#123;</span><br><span class="line">            pipeline.addLast(handler);</span><br><span class="line">        &#125;</span><br><span class="line">        // 设置Channel中EventLoop中各个线程都需要初始化其中的ChannelPipline并且新构建一个ServerBootstrapAccpetor进去</span><br><span class="line">        // ServerBootstrapAccpetor是ChannelInboundHandlerAdapter的子类，所以在Channel收到网络请求时会依次执行其中的方法</span><br><span class="line">        ch.eventLoop().execute(new Runnable() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void run() &#123;</span><br><span class="line">                pipeline.addLast(new ServerBootstrapAcceptor(</span><br><span class="line">                        ch, currentChildGroup, currentChildHandler, currentChildOptions, currentChildAttrs));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>之后将childHandler方法中的pipeline和原有的handler转换为Channel中的ChannelPipeline对象，ChannelPipeline本质上是一个Map&lt;String, ChannelHandler&gt;，将Channel中各个EventLoop中的ChannelPipeline都初始化了一个ServerBootstrapAcceptor，相当于初始化请求链路并在其中新增了一个自己的处理逻辑，并将Channel中的子线程组、自定义拦截器、自定义属性、自定义参数都放入初始化的Acceptor中。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// Group注册到Channel上</span><br><span class="line">ChannelFuture regFuture = config().group().register(channel);</span><br><span class="line">...</span><br><span class="line">// next方法是依次获取当前EventGroup中的所有线程</span><br><span class="line">@Override</span><br><span class="line">public ChannelFuture register(Channel channel) &#123;</span><br><span class="line">    return next().register(channel);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>将Group注册到Channel上，返回一个ChannelFuture对象来进行监听回调处理。<br>channel.closeFuture().sync();</p>
+
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+              <a href="/2020/05/02/1/" target="_self">
+                <i class="iconfont icon-chevronleft"></i>
+                <span>上一页</span>
+              </a>
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime" title="更新时间"></i>
+              2021-01-02 14:13:46
+            </span>
+            
+                  <span class="post-tags">
+                    <i class="iconfont icon-tags" title="标签"></i>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/Netty/" title="Netty">
+                        <b>#</b> Netty
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/%E5%90%8E%E7%AB%AF/" title="后端">
+                        <b>#</b> 后端
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/%E6%BA%90%E7%A0%81/" title="源码">
+                        <b>#</b> 源码
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+          </div>
+          <div class="post-foot-prev">
+            
+              <a href="/2021/05/02/1/" target="_self">
+                <span>下一页</span>
+                <i class="iconfont icon-chevronright"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">目录</div>
+    <div class="catalog-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-NIO"><span class="toc-text">1. NIO</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-1-%E8%BF%90%E8%A1%8C%E7%8A%B6%E6%80%81%E5%92%8C%E5%BC%82%E6%AD%A5%E5%90%8C%E6%AD%A5"><span class="toc-text">1.1 运行状态和异步同步</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-2-%E7%BD%91%E7%BB%9CIO"><span class="toc-text">1.2 网络IO</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-3-Reactor%E6%A8%A1%E5%BC%8F"><span class="toc-text">1.3 Reactor模式</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Netty-Server%E7%AB%AF%E5%90%AF%E5%8A%A8%E6%BA%90%E7%A0%81"><span class="toc-text">2. Netty Server端启动源码</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#2-1-%E5%A3%B0%E6%98%8E%E7%BA%BF%E7%A8%8B%E7%BB%84"><span class="toc-text">2.1 声明线程组</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-2-%E5%88%9D%E5%A7%8B%E5%8C%96ServerBootstrap%E5%B9%B6%E8%AE%BE%E7%BD%AE%E5%8F%82%E6%95%B0"><span class="toc-text">2.2 初始化ServerBootstrap并设置参数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-3-%E5%88%9D%E5%A7%8B%E5%8C%96Channel%E5%B9%B6%E7%9B%91%E5%90%ACSelector"><span class="toc-text">2.3 初始化Channel并监听Selector</span></a></li></ol></li></ol></li></ol>
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+
+
+  <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+
+  <div id="vcomments"></div>
+
+  <script>
+    new Valine({
+      el: '#vcomments',
+      appId: 'LRDflYBpDYwHcKLrQNEsQwoj-gzGzoHsz',
+      appKey: 'zmuYPyF7MrRwF3Rv69GDLkV7',
+      placeholder: 'Welcome!',
+      avatar: 'retro',
+      lang: 'zh-CN'
+    })
+  </script>
+
+    <style>
+      .comments-container .v .vempty {
+        display: none!important;
+      }
+    </style>
+
+
+
+
+      </div>
+    
+  </div>
+
+
+        
+<div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          <a title="github" target="_blank" rel="noopener" href="https://github.com/miraclelll">
+            <i class="iconfont icon-github"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a title="twitter" href="">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a title="rss" href="/atom.xml">
+            <i class="iconfont icon-rss"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+  
+    
+    <div class="footer-more">
+      
+        <a href="https://www.kexi.link">Copyright © 2020 - 2023 Miracle-</a>
+        
+    </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+        
+    </div>
+  
+</div>
+
+      </div>
+
+      <div class="tools-bar">
+        <div class="back-to-top tools-bar-item hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+        
+  <div class="search-icon tools-bar-item" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="搜索...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>首次搜索，正在载入索引文件，请稍后……<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>没有找到内容，请尝试更换检索词。<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>未找到search.xml文件，具体请参考：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>请求失败，尝试重新刷新页面或稍后重试。<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+        
+  <div class="tools-bar-item theme-icon" id="switch-color-scheme">
+    <a href="javascript: void(0)">
+      <i id="theme-icon" class="iconfont icon-moon"></i>
+    </a>
+  </div>
+
+  
+<script src="/js/colorscheme.js"></script>
+
+
+
+
+
+        
+  
+    <div class="share-icon tools-bar-item">
+      <a href="javascript: void(0)" id="share-icon">
+        <i class="iconfont iconshare"></i>
+      </a>
+      <div class="share-content hidden">
+        
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + Netty%E5%BA%94%E7%94%A8%E4%BB%A5%E5%8F%8AServer%E7%AB%AF%E5%90%AF%E5%8A%A8%E6%BA%90%E7%A0%81%EF%BC%88%E4%B8%80%EF%BC%89 + '&url=' + https%3A%2F%2Fwww.kexi.link%2F2021%2F01%2F02%2F1%2F + '" target="_blank" title="Twitter">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        
+        
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=https://www.kexi.link/2021/01/02/1/" target="_blank" title="Facebook">
+            <i class="iconfont icon-facebooksquare"></i>
+          </a>
+        
+      </div>
+    </div>
+  
+  
+<script src="/js/shares.js"></script>
+
+
+
+      </div>
+    </div>
+  </body>
+</html>
