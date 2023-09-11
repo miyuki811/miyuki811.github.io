@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Miracle-</title>
+  <icon>https://www.kexi.link/icon.png</icon>
+  
+  <link href="https://www.kexi.link/atom.xml" rel="self"/>
+  <link href="www.kexi.link" rel="hub"/>
+  <link href="https://www.kexi.link/"/>
+  <updated>2023-06-15T09:23:08.645Z</updated>
+  <id>https://www.kexi.link/</id>
+  
+  <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>VMware安装Kali、基础属性、网络配置及可视化Clash部署</title>
+    <link href="https://www.kexi.link/2023/04/15/1/"/>
+    <id>https://www.kexi.link/2023/04/15/1/</id>
+    <published>2023-04-15T06:00:31.000Z</published>
+    <updated>2023-06-15T09:23:08.645Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;Kali是网络安全中必不可少需要接触操作系统，其中包含了大量的信息收集、漏洞分析、维权、逆向等工具，而今天则是详细的概述一下Kali操作系统的安装步骤、常用配置。由于部分安全工具需要在Github上下载，所以会讲解可视化界面如何配置Clash便于学</summary>
+        
+      
+    
+    
+    
+    
+    <category term="Kali" scheme="https://www.kexi.link/tags/Kali/"/>
+    
+    <category term="网络安全" scheme="https://www.kexi.link/tags/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/"/>
+    
+    <category term="服务部署" scheme="https://www.kexi.link/tags/%E6%9C%8D%E5%8A%A1%E9%83%A8%E7%BD%B2/"/>
+    
+    <category term="基础运维" scheme="https://www.kexi.link/tags/%E5%9F%BA%E7%A1%80%E8%BF%90%E7%BB%B4/"/>
+    
+    <category term="Clash" scheme="https://www.kexi.link/tags/Clash/"/>
+    
+    <category term="Clash for windows" scheme="https://www.kexi.link/tags/Clash-for-windows/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>LRU页面缓存淘汰算法实现</title>
+    <link href="https://www.kexi.link/2022/12/10/1/"/>
+    <id>https://www.kexi.link/2022/12/10/1/</id>
+    <published>2022-12-10T11:49:53.000Z</published>
+    <updated>2023-06-15T09:23:10.218Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;LRU页面缓存淘汰算法，由于内存较为可贵，所以在系统设计中要秉持着将热数据长久存在内存缓存中而冷数据则被淘汰掉的思想，常见应用场景为数据库的缓存页。实质上是对数据进行操作的时候，查询缓存中是否存在，如果存在则将其位置调整到缓存头部，如果不存在则存入</summary>
+        
+      
+    
+    
+    
+    
+    <category term="LRU" scheme="https://www.kexi.link/tags/LRU/"/>
+    
+    <category term="算法" scheme="https://www.kexi.link/tags/%E7%AE%97%E6%B3%95/"/>
+    
+    <category term="缓存算法" scheme="https://www.kexi.link/tags/%E7%BC%93%E5%AD%98%E7%AE%97%E6%B3%95/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>安卓手机安装Termux安装Kali和开启内网穿透教程</title>
+    <link href="https://www.kexi.link/2022/11/05/1/"/>
+    <id>https://www.kexi.link/2022/11/05/1/</id>
+    <published>2022-11-05T05:22:11.000Z</published>
+    <updated>2023-06-15T09:23:08.608Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;突然想起来安卓可以安装Termux和Kali，最近比较喜欢研究网络安全，所以正好换个手机，整了台小米12S Pro，但是总不能抱着手机一通点，影响不太好，所以还需要整个内网穿透。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2</summary>
+        
+      
+    
+    
+    
+    
+    <category term="Kali" scheme="https://www.kexi.link/tags/Kali/"/>
+    
+    <category term="网络安全" scheme="https://www.kexi.link/tags/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/"/>
+    
+    <category term="服务部署" scheme="https://www.kexi.link/tags/%E6%9C%8D%E5%8A%A1%E9%83%A8%E7%BD%B2/"/>
+    
+    <category term="Termux" scheme="https://www.kexi.link/tags/Termux/"/>
+    
+    <category term="安卓" scheme="https://www.kexi.link/tags/%E5%AE%89%E5%8D%93/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>DDD领域驱动设计</title>
+    <link href="https://www.kexi.link/2022/03/05/1/"/>
+    <id>https://www.kexi.link/2022/03/05/1/</id>
+    <published>2022-03-05T03:54:01.000Z</published>
+    <updated>2023-06-15T09:23:10.218Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;领域驱动设计理念，以业务主体为代码设计的骨架，通过业务中的限界上下文划分子域，完美的契合微服务的服务拆分理念，将微服务的服务拆分提供业务依据&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h4 id=&quot;1-主要流程&quot;&gt;&lt;a href=&quot;#1-主要流程&quot;</summary>
+        
+      
+    
+    
+    
+    
+    <category term="架构" scheme="https://www.kexi.link/tags/%E6%9E%B6%E6%9E%84/"/>
+    
+    <category term="微服务" scheme="https://www.kexi.link/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/"/>
+    
+    <category term="DDD" scheme="https://www.kexi.link/tags/DDD/"/>
+    
+    <category term="领域驱动设计" scheme="https://www.kexi.link/tags/%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>zookeeper集成seata</title>
+    <link href="https://www.kexi.link/2022/01/02/1/"/>
+    <id>https://www.kexi.link/2022/01/02/1/</id>
+    <published>2022-01-02T02:27:13.000Z</published>
+    <updated>2023-06-15T09:23:08.570Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;因为不喜欢nacos，太大很臃肿很多功能没必要，所以使用注册中心和配置中心均为zookeeper，然后基于zookeeper搭建了一个后端微服务脚手架。犯蠢忘了不同服务用的是不同数据库，但是自己测试的时候偷懒只用了一个数据库，导致分布式事务始终不生</summary>
+        
+      
+    
+    
+    
+    
+    <category term="微服务" scheme="https://www.kexi.link/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/"/>
+    
+    <category term="zookeeper" scheme="https://www.kexi.link/tags/zookeeper/"/>
+    
+    <category term="分布式事务" scheme="https://www.kexi.link/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/"/>
+    
+    <category term="seata" scheme="https://www.kexi.link/tags/seata/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>编写Linux中frp自启动脚本</title>
+    <link href="https://www.kexi.link/2021/12/01/1/"/>
+    <id>https://www.kexi.link/2021/12/01/1/</id>
+    <published>2021-12-01T09:54:16.000Z</published>
+    <updated>2023-06-15T09:23:07.267Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;家里有台闲置树莓派和轻量云的服务器顺手折腾一下&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;1-启动服务&quot;&gt;&lt;a href=&quot;#1-启动服务&quot; class=&quot;headerlink&quot; title=&quot;1. 启动服务&quot;&gt;&lt;/a&gt;1.</summary>
+        
+      
+    
+    
+    
+    
+    <category term="Linux" scheme="https://www.kexi.link/tags/Linux/"/>
+    
+    <category term="运维" scheme="https://www.kexi.link/tags/%E8%BF%90%E7%BB%B4/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>个人技能网-待补充掌握程度</title>
+    <link href="https://www.kexi.link/2021/10/01/1/"/>
+    <id>https://www.kexi.link/2021/10/01/1/</id>
+    <published>2021-10-01T03:14:44.000Z</published>
+    <updated>2023-06-15T09:23:08.625Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;知识和知识之间是有联系的。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h4 id=&quot;精通（待完善）&quot;&gt;&lt;a href=&quot;#精通（待完善）&quot; class=&quot;headerlink&quot; title=&quot;精通（待完善）&quot;&gt;&lt;/a&gt;精通（待完善）&lt;/h4&gt;&lt;h4</summary>
+        
+      
+    
+    
+    
+    
+    <category term="总结" scheme="https://www.kexi.link/tags/%E6%80%BB%E7%BB%93/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>galgame</title>
+    <link href="https://www.kexi.link/2021/09/04/1/"/>
+    <id>https://www.kexi.link/2021/09/04/1/</id>
+    <published>2021-09-04T02:42:38.000Z</published>
+    <updated>2023-06-15T09:23:10.201Z</updated>
+    
+    
+    <summary type="html">有东西被加密了, 请输入密码查看。</summary>
+    
+    
+    
+    
+    <category term="galgame" scheme="https://www.kexi.link/tags/galgame/"/>
+    
+    <category term="日常" scheme="https://www.kexi.link/tags/%E6%97%A5%E5%B8%B8/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>微服务链路追踪SkyWalking</title>
+    <link href="https://www.kexi.link/2021/05/02/1/"/>
+    <id>https://www.kexi.link/2021/05/02/1/</id>
+    <published>2021-05-02T07:38:32.000Z</published>
+    <updated>2023-06-15T09:23:08.473Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;SkyWalking超级简单的微服务链路追踪框架&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h4 id=&quot;1-下载安装包&quot;&gt;&lt;a href=&quot;#1-下载安装包&quot; class=&quot;headerlink&quot; title=&quot;1. 下载安装包&quot;&gt;&lt;/a&gt;1.</summary>
+        
+      
+    
+    
+    
+    
+    <category term="微服务" scheme="https://www.kexi.link/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/"/>
+    
+    <category term="监控" scheme="https://www.kexi.link/tags/%E7%9B%91%E6%8E%A7/"/>
+    
+    <category term="SkyWalking" scheme="https://www.kexi.link/tags/SkyWalking/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Netty应用以及Server端启动源码（一）</title>
+    <link href="https://www.kexi.link/2021/01/02/1/"/>
+    <id>https://www.kexi.link/2021/01/02/1/</id>
+    <published>2021-01-02T06:13:46.000Z</published>
+    <updated>2023-06-15T09:23:10.084Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;Netty是基于事件处理的高性能异步非阻塞网络框架，Zookeeper、Dubbo、RocketMQ底层都有Netty的影子，是网络编程的基石，需要熟练掌握，本章会介绍NIO相关知识和Netty</summary>
+        
+      
+    
+    
+    
+    
+    <category term="后端" scheme="https://www.kexi.link/tags/%E5%90%8E%E7%AB%AF/"/>
+    
+    <category term="Netty" scheme="https://www.kexi.link/tags/Netty/"/>
+    
+    <category term="源码" scheme="https://www.kexi.link/tags/%E6%BA%90%E7%A0%81/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>MySQL数据库原理剖析和优化</title>
+    <link href="https://www.kexi.link/2020/05/02/1/"/>
+    <id>https://www.kexi.link/2020/05/02/1/</id>
+    <published>2020-05-02T02:14:55.000Z</published>
+    <updated>2023-06-15T09:23:10.032Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;数据库是Web开发中必不可少的一环，需要加强基础知识的学习和总结项目中出现的问题。难点主要在索引和分布式事务上，由于本人项目过程中使用的数据库多为MySQL和MariaDB，所以以下内容所使用的数据库环境均为MySQL&lt;/p&gt;
+&lt;/blockquo</summary>
+        
+      
+    
+    
+    
+    
+    <category term="MySQL" scheme="https://www.kexi.link/tags/MySQL/"/>
+    
+    <category term="后端" scheme="https://www.kexi.link/tags/%E5%90%8E%E7%AB%AF/"/>
+    
+  </entry>
+  
+</feed>
