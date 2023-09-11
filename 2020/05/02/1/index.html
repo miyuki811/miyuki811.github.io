@@ -141,14 +141,14 @@ MathJax = {
                 <i class="iconfont icon-tags" title="标签"></i>
                 
                 <span class="span--tag">
-                  <a href="/tags/%E5%90%8E%E7%AB%AF/" title="后端">
-                    <b>#</b> 后端
+                  <a href="/tags/MySQL/" title="MySQL">
+                    <b>#</b> MySQL
                   </a>
                 </span>
                 
                 <span class="span--tag">
-                  <a href="/tags/MySQL/" title="MySQL">
-                    <b>#</b> MySQL
+                  <a href="/tags/%E5%90%8E%E7%AB%AF/" title="后端">
+                    <b>#</b> 后端
                   </a>
                 </span>
                 
@@ -178,11 +178,11 @@ MathJax = {
 </ul>
 </li>
 <li>服务端<ul>
-<li> 连接器</li>
-<li> 分析器</li>
-<li> 优化器</li>
-<li> 执行器</li>
-<li> 存储引擎</li>
+<li>连接器</li>
+<li>分析器</li>
+<li>优化器</li>
+<li>执行器</li>
+<li>存储引擎</li>
 </ul>
 </li>
 </ul>
@@ -195,7 +195,7 @@ MathJax = {
 <h2 id="2-数据库优化方式"><a href="#2-数据库优化方式" class="headerlink" title="2. 数据库优化方式"></a>2. 数据库优化方式</h2><h4 id="2-1-优化目标"><a href="#2-1-优化目标" class="headerlink" title="2.1 优化目标"></a>2.1 优化目标</h4><p>数据库的优化主要针对与查询中的慢SQL，可以通过打开配置文件中的记录慢SQL功能，针对慢SQL进行统计，找到慢SQL后使用explain关键字对SQL进行解析，结果中的关键字段分别是type（连接类型）、key（查询时使用的索引）、rows（估算出来的结果行数）、Extra（执行情况说明）。</p>
 <p>其中需要额外注意type返回的结果，返回结果有ALL、index、range、 ref、eq_ref、const、system、NULL（指当前查询语句的性能从差到好，一般是认为range则是合格），row则是对结果数据条数的估算，该值是越小越好。Extra则是对查询结果的一个说明，其中using where则是说明该查询使用where进行筛选，using index则是触发了索引覆盖即当前查询内容只需要搜索一次索引树即可查到需要的数据，using index condition则是触发回表效率较低。</p>
 <h4 id="2-2-数据库查询优化"><a href="#2-2-数据库查询优化" class="headerlink" title="2.2 数据库查询优化"></a>2.2 数据库查询优化</h4><p>最左匹配原则：越靠近where的条件，会越有限和索引匹配，当遇到了范围查询（&gt;、&lt;、between）或者like关键字时，会停止命中索引，实际操作中将索引一律靠近where条件即可；</p>
-<p>索引选取规范：索引需要区分度较高，区分度的计算公式为（distinct cloumn）/count(cloumn)，比率越大则数据越少，一般推荐值为0.1以上；</p>
+<p>索引选取规范：索引需要区分度较高，区分度的计算公式为（distinct cloumn）&#x2F;count(cloumn)，比率越大则数据越少，一般推荐值为0.1以上；</p>
 <p>回表：索引列中未查出select中所需要的字段需要二次进入聚集索引，依据主键查到数据源，相当于经历了两次B+树的搜索，效率很低下，需要避免；索引覆盖则是针对回表的优化，将查询中未命中的索引建立联合索引，避免依据索引无法查出完整数据导致的回表；</p>
 <p>索引下推：MySQL5.6优化后查询索引树时会将所有的where判断索引条件都加上，查出结果集，如果不符合结果则直接放弃该条数据。而不是在之前版本中会查出符合第一个where条件的结果再依次使用where条件进行回表查询；</p>
 <p>索引合并：MySQL5.1优化后查询可以使用多个索引一起使用；</p>
@@ -292,14 +292,14 @@ MathJax = {
                     <i class="iconfont icon-tags" title="标签"></i>
                     
                     <span class="span--tag">
-                      <a href="/tags/%E5%90%8E%E7%AB%AF/" title="后端">
-                        <b>#</b> 后端
+                      <a href="/tags/MySQL/" title="MySQL">
+                        <b>#</b> MySQL
                       </a>
                     </span>
                     
                     <span class="span--tag">
-                      <a href="/tags/MySQL/" title="MySQL">
-                        <b>#</b> MySQL
+                      <a href="/tags/%E5%90%8E%E7%AB%AF/" title="后端">
+                        <b>#</b> 后端
                       </a>
                     </span>
                     

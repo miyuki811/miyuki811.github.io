@@ -141,14 +141,14 @@ MathJax = {
                 <i class="iconfont icon-tags" title="标签"></i>
                 
                 <span class="span--tag">
-                  <a href="/tags/Netty/" title="Netty">
-                    <b>#</b> Netty
+                  <a href="/tags/%E5%90%8E%E7%AB%AF/" title="后端">
+                    <b>#</b> 后端
                   </a>
                 </span>
                 
                 <span class="span--tag">
-                  <a href="/tags/%E5%90%8E%E7%AB%AF/" title="后端">
-                    <b>#</b> 后端
+                  <a href="/tags/Netty/" title="Netty">
+                    <b>#</b> Netty
                   </a>
                 </span>
                 
@@ -173,9 +173,9 @@ MathJax = {
 <li>非阻塞：自己来烧水，自己可以在烧水途中做其他的事情；</li>
 </ul>
 <h4 id="1-2-网络IO"><a href="#1-2-网络IO" class="headerlink" title="1.2 网络IO"></a>1.2 网络IO</h4><ul>
-<li>BIO：blocking I/O，阻塞性IO，需要当客户端发送请求之前则建立一个阻塞线程，去监听端口，待请求建立连接后继续阻塞，待客户端发送数据后再处理数据，适用于连接数固定且较小的项目中；</li>
-<li>NIO：new I/O，使用单独的线程进行轮询是否有人建立连接，当建立了连接后才会丢给工作线程组，让线程组以块的模式来处理客户端数据，适用于连接数较大且连接时长较短的业务；</li>
-<li>AIO：asynchronous I/O，完全异步的处理内核态的客户端数据，无需关心建立连接的细节，只需要根据系统通知进行事件处理即可，适用于连接数较大且连接时长较长的业务，用于系统调用比较多的场景，例如文件下载；</li>
+<li>BIO：blocking I&#x2F;O，阻塞性IO，需要当客户端发送请求之前则建立一个阻塞线程，去监听端口，待请求建立连接后继续阻塞，待客户端发送数据后再处理数据，适用于连接数固定且较小的项目中；</li>
+<li>NIO：new I&#x2F;O，使用单独的线程进行轮询是否有人建立连接，当建立了连接后才会丢给工作线程组，让线程组以块的模式来处理客户端数据，适用于连接数较大且连接时长较短的业务；</li>
+<li>AIO：asynchronous I&#x2F;O，完全异步的处理内核态的客户端数据，无需关心建立连接的细节，只需要根据系统通知进行事件处理即可，适用于连接数较大且连接时长较长的业务，用于系统调用比较多的场景，例如文件下载；</li>
 </ul>
 <h4 id="1-3-Reactor模式"><a href="#1-3-Reactor模式" class="headerlink" title="1.3 Reactor模式"></a>1.3 Reactor模式</h4><p>主要分为reactor和handler，reactor用来处理客户端连接，handler用来负责处理相关请求。</p>
 <h2 id="2-Netty-Server端启动源码"><a href="#2-Netty-Server端启动源码" class="headerlink" title="2. Netty Server端启动源码"></a>2. Netty Server端启动源码</h2><h4 id="2-1-声明线程组"><a href="#2-1-声明线程组" class="headerlink" title="2.1 声明线程组"></a>2.1 声明线程组</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// 初始化工作线程组</span><br><span class="line">NioEventLoopGroup workerGroup = new NioEventLoopGroup();</span><br></pre></td></tr></table></figure>
@@ -210,14 +210,14 @@ MathJax = {
                     <i class="iconfont icon-tags" title="标签"></i>
                     
                     <span class="span--tag">
-                      <a href="/tags/Netty/" title="Netty">
-                        <b>#</b> Netty
+                      <a href="/tags/%E5%90%8E%E7%AB%AF/" title="后端">
+                        <b>#</b> 后端
                       </a>
                     </span>
                     
                     <span class="span--tag">
-                      <a href="/tags/%E5%90%8E%E7%AB%AF/" title="后端">
-                        <b>#</b> 后端
+                      <a href="/tags/Netty/" title="Netty">
+                        <b>#</b> Netty
                       </a>
                     </span>
                     
