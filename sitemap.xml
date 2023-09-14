@@ -209,20 +209,6 @@
   </url>
   
   <url>
-    <loc>https://www.kexi.link/tags/Netty/</loc>
-    <lastmod>2023-09-14</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.kexi.link/tags/%E6%BA%90%E7%A0%81/</loc>
-    <lastmod>2023-09-14</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://www.kexi.link/tags/Kali/</loc>
     <lastmod>2023-09-14</lastmod>
     <changefreq>weekly</changefreq>
@@ -265,14 +251,14 @@
   </url>
   
   <url>
-    <loc>https://www.kexi.link/tags/galgame/</loc>
+    <loc>https://www.kexi.link/tags/Netty/</loc>
     <lastmod>2023-09-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://www.kexi.link/tags/%E6%97%A5%E5%B8%B8/</loc>
+    <loc>https://www.kexi.link/tags/%E6%BA%90%E7%A0%81/</loc>
     <lastmod>2023-09-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -294,6 +280,20 @@
   
   <url>
     <loc>https://www.kexi.link/tags/seata/</loc>
+    <lastmod>2023-09-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.kexi.link/tags/galgame/</loc>
+    <lastmod>2023-09-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.kexi.link/tags/%E6%97%A5%E5%B8%B8/</loc>
     <lastmod>2023-09-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
