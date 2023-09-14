@@ -1,8 +1,7 @@
 User-agent: * Allow: /
 Allow: /archives/
 Disallow: /vendors/
-Disallow: /categories/
-Disallow: /tags/
+
 
 
 Sitemap: https://www.kexi.link/sitemap.xml
