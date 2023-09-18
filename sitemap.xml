@@ -195,7 +195,7 @@
   </url>
   
   <url>
-    <loc>https://www.kexi.link/tags/MySQL/</loc>
+    <loc>https://www.kexi.link/tags/Netty/</loc>
     <lastmod>2023-09-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -209,14 +209,14 @@
   </url>
   
   <url>
-    <loc>https://www.kexi.link/tags/Netty/</loc>
+    <loc>https://www.kexi.link/tags/%E6%BA%90%E7%A0%81/</loc>
     <lastmod>2023-09-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://www.kexi.link/tags/%E6%BA%90%E7%A0%81/</loc>
+    <loc>https://www.kexi.link/tags/MySQL/</loc>
     <lastmod>2023-09-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -307,20 +307,6 @@
   </url>
   
   <url>
-    <loc>https://www.kexi.link/tags/%E7%9B%91%E6%8E%A7/</loc>
-    <lastmod>2023-09-18</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.kexi.link/tags/SkyWalking/</loc>
-    <lastmod>2023-09-18</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://www.kexi.link/tags/Termux/</loc>
     <lastmod>2023-09-18</lastmod>
     <changefreq>weekly</changefreq>
@@ -329,6 +315,20 @@
   
   <url>
     <loc>https://www.kexi.link/tags/%E5%AE%89%E5%8D%93/</loc>
+    <lastmod>2023-09-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.kexi.link/tags/%E7%9B%91%E6%8E%A7/</loc>
+    <lastmod>2023-09-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.kexi.link/tags/SkyWalking/</loc>
     <lastmod>2023-09-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
