@@ -6,17 +6,61 @@
   <link href="https://www.kexi.link/atom.xml" rel="self"/>
   <link href="www.kexi.link" rel="hub"/>
   <link href="https://www.kexi.link/"/>
-  <updated>2023-09-11T08:50:23.414Z</updated>
+  <updated>2023-10-10T07:45:15.696Z</updated>
   <id>https://www.kexi.link/</id>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>kali搭建常见靶场以及shell生成器的部署</title>
+    <link href="https://www.kexi.link/2023/10/05/1/"/>
+    <id>https://www.kexi.link/2023/10/05/1/</id>
+    <published>2023-10-05T03:31:08.000Z</published>
+    <updated>2023-10-10T07:45:15.696Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;之前我们介绍了kali的安装和基础部署，后续需要进行网络安全的系统性学习，则必然离不了靶场的安装，接下来将详细介绍几门常用靶场以及相关的安装、使用方式。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;strong&gt;声明不要在未经允许的情况下进行任何网</summary>
+        
+      
+    
+    
+    
+    
+    <category term="Kali" scheme="https://www.kexi.link/tags/Kali/"/>
+    
+    <category term="网络安全" scheme="https://www.kexi.link/tags/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/"/>
+    
+    <category term="靶场" scheme="https://www.kexi.link/tags/%E9%9D%B6%E5%9C%BA/"/>
+    
+    <category term="reverse shell generator" scheme="https://www.kexi.link/tags/reverse-shell-generator/"/>
+    
+    <category term="xss" scheme="https://www.kexi.link/tags/xss/"/>
+    
+    <category term="pikachu" scheme="https://www.kexi.link/tags/pikachu/"/>
+    
+    <category term="dvwa" scheme="https://www.kexi.link/tags/dvwa/"/>
+    
+    <category term="sqli-labs" scheme="https://www.kexi.link/tags/sqli-labs/"/>
+    
+    <category term="vulhub" scheme="https://www.kexi.link/tags/vulhub/"/>
+    
+    <category term="hack the box" scheme="https://www.kexi.link/tags/hack-the-box/"/>
+    
+  </entry>
   
   <entry>
     <title>VMware安装Kali、基础属性、网络配置及可视化Clash部署</title>
     <link href="https://www.kexi.link/2023/04/15/1/"/>
     <id>https://www.kexi.link/2023/04/15/1/</id>
     <published>2023-04-15T06:00:31.000Z</published>
-    <updated>2023-09-11T08:50:23.414Z</updated>
+    <updated>2023-10-09T06:39:44.482Z</updated>
     
     
       
@@ -292,9 +336,9 @@
     
     
     
-    <category term="Netty" scheme="https://www.kexi.link/tags/Netty/"/>
-    
     <category term="后端" scheme="https://www.kexi.link/tags/%E5%90%8E%E7%AB%AF/"/>
+    
+    <category term="Netty" scheme="https://www.kexi.link/tags/Netty/"/>
     
     <category term="源码" scheme="https://www.kexi.link/tags/%E6%BA%90%E7%A0%81/"/>
     
@@ -321,9 +365,9 @@
     
     
     
-    <category term="后端" scheme="https://www.kexi.link/tags/%E5%90%8E%E7%AB%AF/"/>
-    
     <category term="MySQL" scheme="https://www.kexi.link/tags/MySQL/"/>
+    
+    <category term="后端" scheme="https://www.kexi.link/tags/%E5%90%8E%E7%AB%AF/"/>
     
   </entry>
   
